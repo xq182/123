@@ -1,0 +1,1 @@
+document.getElementById('busuanzi_value_site_pv').innerHTML= '9999999';
