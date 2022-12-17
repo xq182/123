@@ -76,3 +76,6 @@
     font-style: normal;
     /* font-size: 21px; */
   }
+  .icon-weixin:before {
+    content: "\e607";
+  }
