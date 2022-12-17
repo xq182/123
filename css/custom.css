@@ -65,17 +65,19 @@
 }
 /* 这个问题实际上是引入得css没有效果，下载本地应该可以用，我没有试过 */
 /* 修复图标不显示问题 */
-.QQ:before{
+ .icon-QQ:before{
     content: "\e882";
     font-family: "iconfont";
     font-style: normal;
   }
-.Github:before{
+ .icon-github:before{
     content: "\e689";
     font-family: "iconfont";
     font-style: normal;
     /* font-size: 21px; */
   }
-  .icon-weixin:before {
+ .icon-weixin:before {
     content: "\e607";
+    font-family: "iconfont";
+    font-style: normal;
   }
