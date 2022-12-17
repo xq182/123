@@ -4,11 +4,102 @@
   
     
     <entry>
-      <title>hello,宣宣</title>
-      <link href="/2022/12/14/hello-world/"/>
-      <url>/2022/12/14/hello-world/</url>
+      <title>CAP原则</title>
+      <link href="/2022/12/17/6/"/>
+      <url>/2022/12/17/6/</url>
       
-        <content type="html"><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p><h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p><h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p><h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p><h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure><p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>]]></content>
+        <content type="html"><![CDATA[<p>CAP定理又称CAP原则，指的是在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。</p><ul><li><p>Consistency (一致性)：</p><p>“all nodes see the same data at the same time”，即更新操作成功并返回客户端后，所有节点在同一时间的数据完全一致，这就是分布式的一致性。一致性的问题在并发系统中不可避免，对于客户端来说，一致性指的是并发访问时更新过的数据如何获取的问题。从服务端来看，则是更新如何复制分布到整个系统，以保证数据最终一致。</p></li><li><p>Availability (可用性)：</p><p>可用性指“Reads and writes always succeed”，即服务一直可用，而且是正常响应时间。好的可用性主要是指系统能够很好的为用户服务，不出现用户操作失败或者访问超时等用户体验不好的情况。</p></li><li><p>Partition Tolerance (分区容错性)：</p><p>即分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性和可用性的服务。分区容错性要求能够使应用虽然是一个分布式系统，而看上去却好像是在一个可以运转正常的整体。比如现在的分布式系统中有某一个或者几个机器宕掉了，其他剩下的机器还能够正常运转满足系统需求，对于用户而言并没有什么体验上的影响。</p></li></ul>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我对高并发的理解</title>
+      <link href="/2022/12/17/7/"/>
+      <url>/2022/12/17/7/</url>
+      
+        <content type="html"><![CDATA[<h1 id="1-如何理解高并发？"><a href="#1-如何理解高并发？" class="headerlink" title="1.如何理解高并发？"></a>1.如何理解高并发？</h1><p>高并发意味着大流量，需要运用技术手段抵抗流量的冲击，这些手段好比操作流量，能让流量更平稳地被系统所处理，带给用户更好的体验。我们常见的高并发场景有：淘宝的双11、春运时的抢票、微博大V的热点新闻等。除了这些典型事情，每秒几十万请求的秒杀系统、每天千万级的订单系统、每天亿级日活的信息流系统等，都可以归为高并发。很显然，上面谈到的高并发场景，并发量各不相同，那到底多大并发才算高并发呢？</p><ol><li>不能只看数字，要看具体的业务场景。不能说10W QPS的秒杀是高并发，而1W QPS的信息流就不是高并发。信息流场景涉及复杂的推荐模型和各种人工策略，它的业务逻辑可能比秒杀场景复杂10倍不止。因此，不在同一个维度，没有任何比较意义。</li><li>业务都是从0到1做起来的，并发量和QPS只是参考指标，最重要的是：在业务量逐渐变成原来的10倍、100倍的过程中，你是否用到了高并发的处理方法去演进你的系统，从架构设计、编码实现、甚至产品方案等维度去预防和解决高并发引起的问题？而不是一味的升级硬件、加机器做水平扩展。</li></ol><p>此外，各个高并发场景的业务特点完全不同：有读多写少的信息流场景、有读多写多的交易场景，那是否有通用的技术方案解决不同场景的高并发问题呢？我觉得大的思路可以借鉴，别人的方案也可以参考，但是真正落地过程中，细节上还会有无数的坑。另外，由于软硬件环境、技术栈、以及产品逻辑都没法做到完全一致，这些都会导致同样的业务场景，就算用相同的技术方案也会面临不同的问题，这些坑还得一个个趟。</p><h1 id="2-高并发系统设计的目标是什么？"><a href="#2-高并发系统设计的目标是什么？" class="headerlink" title="2.高并发系统设计的目标是什么？"></a>2.高并发系统设计的目标是什么？</h1><p>先搞清楚高并发系统设计的目标，在此基础上再讨论设计方案和实践经验才有意义和针对性。</p><p>2.1 宏观目标</p><p>高并发绝不意味着只追求高性能，这是很多人片面的理解。从宏观角度看，高并发系统设计的目标有三个：高性能、高可用，以及高可扩展。</p><ol><li>高性能：性能体现了系统的并行处理能力，在有限的硬件投入下，提高性能意味着节省成本。同时，性能也反映了用户体验，响应时间分别是100毫秒和1秒，给用户的感受是完全不同的。</li><li>高可用：表示系统可以正常服务的时间。一个全年不停机、无故障；另一个隔三差五出线上事故、宕机，用户肯定选择前者。另外，如果系统只能做到90%可用，也会大大拖累业务。</li><li>高扩展：表示系统的扩展能力，流量高峰时能否在短时间内完成扩容，更平稳地承接峰值流量，比如双11活动、明星离婚等热点事件。</li></ol><p>这3个目标是需要通盘考虑的，因为它们互相关联、甚至也会相互影响。比如说：考虑系统的扩展能力，你会将服务设计成无状态的，这种集群设计保证了高扩展性，其实也间接提升了系统的性能和可用性。再比如说：为了保证可用性，通常会对服务接口进行超时设置，以防大量线程阻塞在慢请求上造成系统雪崩，那超时时间设置成多少合理呢？一般，我们会参考依赖服务的性能表现进行设置。</p><p>2.2 微观目标</p><p>再从微观角度来看，高性能、高可用和高扩展又有哪些具体的指标来衡量？为什么会选择这些指标呢？</p><p>2.2.1 性能指标</p><p>通过性能指标可以度量目前存在的性能问题，同时作为性能优化的评估依据。一般来说，会采用一段时间内的接口响应时间作为指标。</p><ol><li><p>平均响应时间：最常用，但是缺陷很明显，对于慢请求不敏感。比如1万次请求，其中9900次是1ms，100次是100ms，则平均响应时间为1.99ms，虽然平均耗时仅增加了0.99ms，但是1%请求的响应时间已经增加了100倍。</p></li><li><p>TP90、TP99等分位值：将响应时间按照从小到大排序，TP90表示排在第90分位的响应时间， 分位值越大，对慢请求越敏感。</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645695938619/E4A27CD7006DDBB775A1A6D059F56C9D" alt="img"></p></li><li><p>吞吐量：和响应时间呈反比，比如响应时间是1ms，则吞吐量为每秒1000次。</p></li></ol><p>通常，设定性能目标时会兼顾吞吐量和响应时间，比如这样表述：在每秒1万次请求下，AVG控制在50ms以下，TP99控制在100ms以下。对于高并发系统，AVG和TP分位值必须同时要考虑。另外，从用户体验角度来看，200毫秒被认为是第一个分界点，用户感觉不到延迟，1秒是第二个分界点，用户能感受到延迟，但是可以接受。因此，对于一个健康的高并发系统，TP99应该控制在200毫秒以内，TP999或者TP9999应该控制在1秒以内。</p><p>2.2.2 可用性指标</p><p>高可用性是指系统具有较高的无故障运行能力，可用性 = 平均故障时间 / 系统总运行时间，一般使用几个9来描述系统的可用性。</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645695947877/4674A6558CBAD1F7AFE79A85D6BCCBA3" alt="img"></p><p>对于高并发系统来说，最基本的要求是：保证3个9或者4个9。原因很简单，如果你只能做到2个9，意味着有1%的故障时间，像一些大公司每年动辄千亿以上的GMV或者收入，1%就是10亿级别的业务影响。</p><p>2.2.3 可扩展性指标</p><p>面对突发流量，不可能临时改造架构，最快的方式就是增加机器来线性提高系统的处理能力。</p><p>对于业务集群或者基础组件来说，扩展性 = 性能提升比例 / 机器增加比例，理想的扩展能力是：资源增加几倍，性能提升几倍。通常来说，扩展能力要维持在70%以上。</p><p>但是从高并发系统的整体架构角度来看，扩展的目标不仅仅是把服务设计成无状态就行了，因为当流量增加10倍，业务服务可以快速扩容10倍，但是数据库可能就成为了新的瓶颈。</p><p>像MySQL这种有状态的存储服务通常是扩展的技术难点，如果架构上没提前做好规划（垂直和水平拆分），就会涉及到大量数据的迁移。</p><p>因此，高扩展性需要考虑：服务集群、数据库、缓存和消息队列等中间件、负载均衡、带宽、依赖的第三方等，当并发达到某一个量级后，上述每个因素都可能成为扩展的瓶颈点。</p><h1 id="3-高并发的实践方案有哪些？"><a href="#3-高并发的实践方案有哪些？" class="headerlink" title="3. 高并发的实践方案有哪些？"></a>3. 高并发的实践方案有哪些？</h1><p>了解了高并发设计的3大目标后，再系统性总结下高并发的设计方案，会从以下两部分展开：先总结下通用的设计方法，然后再围绕高性能、高可用、高扩展分别给出具体的实践方案。</p><p>3.1 通用的设计方法</p><p>通用的设计方法主要是从「纵向」和「横向」两个维度出发，俗称高并发处理的两板斧：纵向扩展和横向扩展。</p><p>3.1.1 纵向扩展（scale-up）</p><p>它的目标是提升单机的处理能力，方案又包括：</p><ol><li>提升单机的硬件性能：通过增加内存、CPU核数、存储容量、或者将磁盘升级成SSD等堆硬件的方式来提升。</li><li>提升单机的软件性能：使用缓存减少IO次数，使用并发或者异步的方式增加吞吐量。</li></ol><p>3.1.2 横向扩展（scale-out）</p><p>因为单机性能总会存在极限，所以最终还需要引入横向扩展，通过集群部署以进一步提高并发处理能力，又包括以下2个方向：</p><ol><li><p>做好分层架构：这是横向扩展的提前，因为高并发系统往往业务复杂，通过分层处理可以简化复杂问题，更容易做到横向扩展。</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645695960522/0642E848F1056357569BEE416AC6D160" alt="img"></p><p>上面这种图是互联网最常见的分层架构，当然真实的高并发系统架构会在此基础上进一步完善。比如会做动静分离并引入CDN，反向代理层可以是LVS+Nginx，Web层可以是统一的API网关，业务服务层可进一步按垂直业务做微服务化，存储层可以是各种异构数据库。</p></li><li><p>各层进行水平扩展：无状态水平扩容，有状态做分片路由。业务集群通常能设计成无状态的，而数据库和缓存往往是有状态的，因此需要设计分区键做好存储分片，当然也可以通过主从同步、读写分离的方案提升读性能。</p></li></ol><p>3.2 具体的实践方案</p><p>下面再结合我的个人经验，针对高性能、高可用、高扩展3个方面，总结下可落地的实践方案。</p><p>3.2.1 高性能的实践方案</p><ol><li>集群部署，通过负载均衡减轻单机压力。</li><li>多级缓存，包括静态数据使用CDN、本地缓存、分布式缓存等，以及对缓存场景中的热点key、缓存穿透、缓存并发、数据一致性等问题的处理。</li><li>分库分表和索引优化，以及借助搜索引擎解决复杂查询问题。</li><li>考虑NoSQL数据库的使用，比如HBase、TiDB等，但是团队必须熟悉这些组件，且有较强的运维能力。</li><li>异步化，将次要流程通过多线程、MQ、甚至延时任务进行异步处理。</li><li>限流，需要先考虑业务是否允许限流（比如秒杀场景是允许的），包括前端限流、Nginx接入层的限流、服务端的限流。</li><li>对流量进行削峰填谷，通过MQ承接流量。</li><li>并发处理，通过多线程将串行逻辑并行化。</li><li>预计算，比如抢红包场景，可以提前计算好红包金额缓存起来，发红包时直接使用即可。</li><li>缓存预热，通过异步任务提前预热数据到本地缓存或者分布式缓存中。</li><li>减少IO次数，比如数据库和缓存的批量读写、RPC的批量接口支持、或者通过冗余数据的方式干掉RPC调用。</li><li>减少IO时的数据包大小，包括采用轻量级的通信协议、合适的数据结构、去掉接口中的多余字段、减少缓存key的大小、压缩缓存value等。</li><li>程序逻辑优化，比如将大概率阻断执行流程的判断逻辑前置、For循环的计算逻辑优化，或者采用更高效的算法。</li><li>各种池化技术的使用和池大小的设置，包括HTTP请求池、线程池（考虑CPU密集型还是IO密集型设置核心参数）、数据库和Redis连接池等。</li><li>JVM优化，包括新生代和老年代的大小、GC算法的选择等，尽可能减少GC频率和耗时。</li><li>锁选择，读多写少的场景用乐观锁，或者考虑通过分段锁的方式减少锁冲突。</li></ol><p>上述方案无外乎从计算和 IO 两个维度考虑所有可能的优化点，需要有配套的监控系统实时了解当前的性能表现，并支撑你进行性能瓶颈分析，然后再遵循二八原则，抓主要矛盾进行优化。</p><p>3.2.2 高可用的实践方案</p><ol><li>对等节点的故障转移，Nginx和服务治理框架均支持一个节点失败后访问另一个节点。</li><li>非对等节点的故障转移，通过心跳检测并实施主备切换（比如redis的哨兵模式或者集群模式、MySQL的主从切换等）。</li><li>接口层面的超时设置、重试策略和幂等设计。</li><li>降级处理：保证核心服务，牺牲非核心服务，必要时进行熔断；或者核心链路出问题时，有备选链路。</li><li>限流处理：对超过系统处理能力的请求直接拒绝或者返回错误码。</li><li>MQ场景的消息可靠性保证，包括producer端的重试机制、broker侧的持久化、consumer端的ack机制等。</li><li>灰度发布，能支持按机器维度进行小流量部署，观察系统日志和业务指标，等运行平稳后再推全量。</li><li>监控报警：全方位的监控体系，包括最基础的CPU、内存、磁盘、网络的监控，以及Web服务器、JVM、数据库、各类中间件的监控和业务指标的监控。</li><li>灾备演练：类似当前的“混沌工程”，对系统进行一些破坏性手段，观察局部故障是否会引起可用性问题。</li></ol><p>高可用的方案主要从冗余、取舍、系统运维3个方向考虑，同时需要有配套的值班机制和故障处理流程，当出现线上问题时，可及时跟进处理。</p><p>3.2.3 高扩展的实践方案</p><ol><li>合理的分层架构：比如上面谈到的互联网最常见的分层架构，另外还能进一步按照数据访问层、业务逻辑层对微服务做更细粒度的分层（但是需要评估性能，会存在网络多一跳的情况）。</li><li>存储层的拆分：按照业务维度做垂直拆分、按照数据特征维度进一步做水平拆分（分库分表）。</li><li>业务层的拆分：最常见的是按照业务维度拆（比如电商场景的商品服务、订单服务等），也可以按照核心接口和非核心接口拆，还可以按照请求源拆（比如To C和To B，APP和H5）。</li></ol>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>消息队列如何保证顺序消费？</title>
+      <link href="/2022/12/17/8/"/>
+      <url>/2022/12/17/8/</url>
+      
+        <content type="html"><![CDATA[<p>在生产中经常会有一些类似报表系统这样的系统，需要做 MySQL 的 binlog 同步。比如订单系统要同步订单表的数据到大数据部门的 MySQL 库中用于报表统计分析，通常的做法是基于 Canal 这样的中间件去监听订单数据库的 binlog，然后把这些 binlog 发送到 MQ 中，再由消费者从 MQ 中获取 binlog 落地到大数据部门的 MySQL 中。</p><p>在这个过程中，可能会有对某个订单的增删改操作，比如有三条 binlog 执行顺序是增加、修改、删除。消费者愣是换了顺序给执行成删除、修改、增加，这样能行吗？肯定是不行的。不同的消息队列产品，产生消息错乱的原因，以及解决方案是不同的。下面我们以RabbitMQ、Kafka、RocketMQ为例，来说明保证顺序消费的办法。</p><p>RabbitMQ：</p><p>对于 RabbitMQ 来说，导致上面顺序错乱的原因通常是消费者是集群部署，不同的消费者消费到了同一订单的不同的消息。如消费者A执行了增加，消费者B执行了修改，消费者C执行了删除，但是消费者C执行比消费者B快，消费者B又比消费者A快，就会导致消费 binlog 执行到数据库的时候顺序错乱，本该顺序是增加、修改、删除，变成了删除、修改、增加。</p><p>RabbitMQ 的问题是由于不同的消息都发送到了同一个 queue 中，多个消费者都消费同一个 queue 的消息。解决这个问题，我们可以给 RabbitMQ 创建多个 queue，每个消费者固定消费一个 queue 的消息，生产者发送消息的时候，同一个订单号的消息发送到同一个 queue 中，由于同一个 queue 的消息是一定会保证有序的，那么同一个订单号的消息就只会被一个消费者顺序消费，从而保证了消息的顺序性。</p><p>Kafka：</p><p>对于 Kafka 来说，一个 topic 下同一个 partition 中的消息肯定是有序的，生产者在写的时候可以指定一个 key，通过我们会用订单号作为 key，这个 key 对应的消息都会发送到同一个 partition 中，所以消费者消费到的消息也一定是有序的。</p><p>那么为什么 Kafka 还会存在消息错乱的问题呢？问题就出在消费者身上。通常我们消费到同一个 key 的多条消息后，会使用多线程技术去并发处理来提高消息处理速度，否则一条消息的处理需要耗时几十 毫秒，1 秒也就只能处理几十条消息，吞吐量就太低了。而多线程并发处理的话，binlog 执行到数据库的时候就不一定还是原来的顺序了。</p><p>Kafka 从生产者到消费者消费消息这一整个过程其实都是可以保证有序的，导致最终乱序是由于消费者端需要使用多线程并发处理消息来提高吞吐量，比如消费者消费到了消息以后，开启 32 个线程处理消息，每个线程线程处理消息的快慢是不一致的，所以才会导致最终消息有可能不一致。</p><p>所以对于 Kafka 的消息顺序性保证，其实我们只需要保证同一个订单号的消息只被同一个线程处理的就可以了。由此我们可以在线程处理前增加个内存队列，每个线程只负责处理其中一个内存队列的消息，同一个订单号的消息发送到同一个内存队列中即可。</p><p>RocketMQ：</p><p>对于 RocketMQ 来说，每个 Topic 可以指定多个 MessageQueue，当我们写入消息的时候，会把消息均匀地分发到不同的 MessageQueue 中，比如同一个订单号的消息，增加 binlog 写入到 MessageQueue1 中，修改 binlog 写入到 MessageQueue2 中，删除 binlog 写入到 MessageQueue3 中。</p><p>但是当消费者有多台机器的时候，会组成一个 Consumer Group，Consumer Group 中的每台机器都会负责消费一部分 MessageQueue 的消息，所以可能消费者A消费了 MessageQueue1 的消息执行增加操作，消费者B消费了 MessageQueue2 的消息执行修改操作，消费者C消费了 MessageQueue3 的消息执行删除操作，但是此时消费 binlog 执行到数据库的时候就不一定是消费者A先执行了，有可能消费者C先执行删除操作，因为几台消费者是并行执行，是不能够保证他们之间的执行顺序的。</p><p>RocketMQ 的消息乱序是由于同一个订单号的 binlog 进入了不同的 MessageQueue，进而导致一个订单的 binlog 被不同机器上的 Consumer 处理。</p><p>要解决 RocketMQ 的乱序问题，我们只需要想办法让同一个订单的 binlog 进入到同一个 MessageQueue 中就可以了。因为同一个 MessageQueue 内的消息是一定有序的，一个 MessageQueue 中的消息只能交给一个 Consumer 来进行处理，所以 Consumer 消费的时候就一定会是有序的。</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Redis是单线程的，为什么还能这么快？</title>
+      <link href="/2022/12/17/4/"/>
+      <url>/2022/12/17/4/</url>
+      
+        <content type="html"><![CDATA[<ol><li>对服务端程序来说，线程切换和锁通常是性能杀手，而单线程避免了线程切换和竞争所产生的消耗；</li><li>Redis的大部分操作是在内存上完成的，这是它实现高性能的一个重要原因；</li><li>Redis采用了IO多路复用机制，使其在网络IO操作中能并发处理大量的客户端请求，实现高吞吐率。</li></ol><p>关于Redis的单线程架构实现，如下图：</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645694890446/7D358C4626AF51725C251A2611C5DD65" alt="img"></p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Redis中，sexnx命令的返回值是什么，如何使用该命令实现分布式锁</title>
+      <link href="/2022/12/17/5/"/>
+      <url>/2022/12/17/5/</url>
+      
+        <content type="html"><![CDATA[<p>setnx命令返回整数值，当返回1时表示设置值成果，当返回0时表示设置值失败（key已存在）。</p><p>一般我们不建议直接使用setnx命令来实现分布式锁，因为为了避免出现死锁，我们要给锁设置一个自动过期时间。而setnx命令和设置过期时间的命令不是原子的，可能加锁成果而设置过期时间失败，依然存在死锁的隐患。对于这种情况，Redis改进了set命令，给它增加了nx选项，启用该选项时set命令的效果就会setnx一样了。</p><p>采用Redis实现分布式锁，就是在Redis里存一份代表锁的数据，通常用字符串即可。采用改进后的setnx命令（即set…nx…命令）实现分布式锁的思路，以及优化的过程如下：</p><p>加锁：</p><p>第一版，这种方式的缺点是容易产生死锁，因为客户端有可能忘记解锁，或者解锁失败。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setnx key value</span><br></pre></td></tr></table></figure><p>第二版，给锁增加了过期时间，避免出现死锁。但这两个命令不是原子的，第二步可能会失败，依然无法避免死锁问题。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setnx key value expire key seconds</span><br></pre></td></tr></table></figure><p>第三版，通过“set…nx…”命令，将加锁、过期命令编排到一起，它们是原子操作了，可以避免死锁。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set key value nx ex seconds </span><br></pre></td></tr></table></figure><p>解锁：</p><p>解锁就是删除代表锁的那份数据。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">del key</span><br></pre></td></tr></table></figure><p>问题：</p><p>看起来已经很完美了，但实际上还有隐患，如下图。进程A在任务没有执行完毕时，锁已经到期被释放了。等进程A的任务执行结束后，它依然会尝试释放锁，因为它的代码逻辑就是任务结束后释放锁。但是，它的锁早已自动释放过了，它此时释放的可能是其他线程的锁。</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645694916881/59C7A823A30BE4C95CB70B8A1808F120" alt="img"></p><p>想要解决这个问题，我们需要解决两件事情：</p><ol><li>在加锁时就要给锁设置一个标识，进程要记住这个标识。当进程解锁的时候，要进行判断，是自己持有的锁才能释放，否则不能释放。可以为key赋一个随机值，来充当进程的标识。</li><li>解锁时要先判断、再释放，这两步需要保证原子性，否则第二步失败的话，就会出现死锁。而获取和删除命令不是原子的，这就需要采用Lua脚本，通过Lua脚本将两个命令编排在一起，而整个Lua脚本的执行是原子的。</li></ol><p>按照以上思路，优化后的命令如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># 加锁 set key random-value nx ex seconds   # 解锁 if redis.call(&quot;get&quot;,KEYS[1]) == ARGV[1] then     return re</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我对Spring Boot的理解</title>
+      <link href="/2022/12/17/3/"/>
+      <url>/2022/12/17/3/</url>
+      
+        <content type="html"><![CDATA[<p>从本质上来说，Spring Boot就是Spring，它做了那些没有它你自己也会去做的Spring Bean配置。Spring Boot使用“习惯优于配置”的理念让你的项目快速地运行起来，使用Spring Boot很容易创建一个能独立运行、准生产级别、基于Spring框架的项目，使用Spring Boot你可以不用或者只需要很少的Spring配置。</p><p>简而言之，Spring Boot本身并不提供Spring的核心功能，而是作为Spring的脚手架框架，以达到快速构建项目、预置三方配置、开箱即用的目的。Spring Boot有如下的优点：</p><ul><li>可以快速构建项目；</li><li>可以对主流开发框架的无配置集成；</li><li>项目可独立运行，无需外部依赖Servlet容器；</li><li>提供运行时的应用监控；</li><li>可以极大地提高开发、部署效率；</li><li>可以与云计算天然集成。</li></ul>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Spring的核心是什么</title>
+      <link href="/2022/12/17/2/"/>
+      <url>/2022/12/17/2/</url>
+      
+        <content type="html"><![CDATA[<p>Spring框架包含众多模块，如Core、Testing、Data Access、Web Servlet等，其中Core是整个Spring框架的核心模块。Core模块提供了IoC容器、AOP功能、数据绑定、类型转换等一系列的基础功能，而这些功能以及其他模块的功能都是建立在IoC和AOP之上的，所以IoC和AOP是Spring框架的核心。</p><p>IoC（Inversion of Control）是控制反转的意思，这是一种面向对象编程的设计思想。在不采用这种思想的情况下，我们需要自己维护对象与对象之间的依赖关系，很容易造成对象之间的耦合度过高，在一个大型的项目中这十分的不利于代码的维护。IoC则可以解决这种问题，它可以帮我们维护对象与对象之间的依赖关系，降低对象之间的耦合度。</p><p>说到IoC就不得不说DI（Dependency Injection），DI是依赖注入的意思，它是IoC实现的实现方式，就是说IoC是通过DI来实现的。由于IoC这个词汇比较抽象而DI却更直观，所以很多时候我们就用DI来代替它，在很多时候我们简单地将IoC和DI划等号，这是一种习惯。而实现依赖注入的关键是IoC容器，它的本质就是一个工厂。</p><p>AOP（Aspect Oriented Programing）是面向切面编程思想，这种思想是对OOP的补充，它可以在OOP的基础上进一步提高编程的效率。简单来说，它可以统一解决一批组件的共性需求（如权限检查、记录日志、事务管理等）。在AOP思想下，我们可以将解决共性需求的代码独立出来，然后通过配置的方式，声明这些代码在什么地方、什么时机调用。当满足调用条件时，AOP会将该业务代码织入到我们指定的位置，从而统一解决了问题，又不需要修改这一批组件的代码。</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Java基础知识</title>
+      <link href="/2022/12/14/1/"/>
+      <url>/2022/12/14/1/</url>
+      
+        <content type="html"><![CDATA[<h3 id="Java-语言有哪些特点"><a href="#Java-语言有哪些特点" class="headerlink" title="Java 语言有哪些特点?"></a>Java 语言有哪些特点?</h3><ol><li>简单易学；</li><li>面向对象（封装，继承，多态）；</li><li>平台无关性（ Java 虚拟机实现平台无关性）；</li><li>支持多线程（ C++ 语言没有内置的多线程机制，因此必须调用操作系统的多线程功能来进行多线程程序设计，而 Java 语言却提供了多线程支持）；</li><li>可靠性；</li><li>安全性；</li><li>支持网络编程并且很方便（ Java 语言诞生本身就是为简化网络编程设计的，因此 Java 语言不仅支持网络编程而且很方便）；</li><li>编译与解释并存；</li></ol><blockquote><p><strong>🐛 修正（参见： <a href="https://github.com/Snailclimb/JavaGuide/issues/544">issue#544open in new window</a>）</strong> ：C++11 开始（2011 年的时候）,C++就引入了多线程库，在 windows、linux、macos 都可以使用<code>std::thread</code>和<code>std::async</code>来创建线程。参考链接：<a href="http://www.cplusplus.com/reference/thread/thread/?kw=thread">http://www.cplusplus.com/reference/thread/thread/?kw=thread</a></p></blockquote><p>🌈 拓展一下：</p><p>“Write Once, Run Anywhere（一次编写，随处运行）”这句宣传口号，真心经典，流传了好多年！以至于，直到今天，依然有很多人觉得跨平台是 Java 语言最大的优势。实际上，跨平台已经不是 Java 最大的卖点了，各种 JDK 新特性也不是。目前市面上虚拟化技术已经非常成熟，比如你通过 Docker 就很容易实现跨平台了。在我看来，Java 强大的生态才是！</p><h3 id="JVM-vs-JDK-vs-JRE"><a href="#JVM-vs-JDK-vs-JRE" class="headerlink" title="# JVM vs JDK vs JRE"></a><a href="#jvm-vs-jdk-vs-jre">#</a> JVM vs JDK vs JRE</h3><h4 id="JVM"><a href="#JVM" class="headerlink" title="# JVM"></a><a href="#jvm">#</a> JVM</h4><p>Java 虚拟机（JVM）是运行 Java 字节码的虚拟机。JVM 有针对不同系统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们都会给出相同的结果。字节码和不同系统的 JVM 实现是 Java 语言“一次编译，随处可以运行”的关键所在。</p><p><strong>JVM 并不是只有一种！只要满足 JVM 规范，每个公司、组织或者个人都可以开发自己的专属 JVM。</strong> 也就是说我们平时接触到的 HotSpot VM 仅仅是是 JVM 规范的一种实现而已。</p><p>除了我们平时最常用的 HotSpot VM 外，还有 J9 VM、Zing VM、JRockit VM 等 JVM 。维基百科上就有常见 JVM 的对比：<a href="https://en.wikipedia.org/wiki/Comparison_of_Java_virtual_machines">Comparison of Java virtual machinesopen in new window</a> ，感兴趣的可以去看看。并且，你可以在 <a href="https://docs.oracle.com/javase/specs/index.html">Java SE Specificationsopen in new window</a> 上找到各个版本的 JDK 对应的 JVM 规范。</p><p><img src="https://guide-blog-images.oss-cn-shenzhen.aliyuncs.com/github/javaguide/java/basis/JavaSeSpecifications.jpg" alt="img"></p>]]></content>
       
       
       
