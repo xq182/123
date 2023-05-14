@@ -4,23 +4,23 @@
   
     
     <entry>
-      <title>spring容器的创建过程</title>
-      <link href="/2023/03/09/9/"/>
-      <url>/2023/03/09/9/</url>
+      <title>Spring MVC的执行流程</title>
+      <link href="/2023/05/14/18/"/>
+      <url>/2023/05/14/18/</url>
       
-        <content type="html"><![CDATA[<p>Spring容器的refresh()【创建刷新】;</p><p>1、prepareRefresh()刷新前的预处理;</p><p>  1）、initPropertySources()初始化一些属性设置;子类自定义个性化的属性设置方法；</p><p>  2）、getEnvironment().validateRequiredProperties();检验属性的合法等</p><p>  3）、earlyApplicationEvents= new LinkedHashSet<ApplicationEvent>();保存容器中的一些早期的事件；</p><p>2、obtainFreshBeanFactory();获取BeanFactory；</p><p>  1）、refreshBeanFactory();刷新【创建】BeanFactory；</p><p>​      创建了一个this.beanFactory = new DefaultListableBeanFactory();</p><p>​      设置id；</p><p>  2）、getBeanFactory();返回刚才GenericApplicationContext创建的BeanFactory对象；</p><p>  3）、将创建的BeanFactory【DefaultListableBeanFactory】返回；</p><p>3、prepareBeanFactory(beanFactory);BeanFactory的预准备工作（BeanFactory进行一些设置）；</p><p>  1）、设置BeanFactory的类加载器、支持表达式解析器…</p><p>  2）、添加部分BeanPostProcessor【ApplicationContextAwareProcessor】</p><p>  3）、设置忽略的自动装配的接口EnvironmentAware、EmbeddedValueResolverAware、xxx；</p><p>  4）、注册可以解析的自动装配；我们能直接在任何组件中自动注入：</p><p>​      BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext</p><p>  5）、添加BeanPostProcessor【ApplicationListenerDetector】</p><p>  6）、添加编译时的AspectJ；</p><p>  7）、给BeanFactory中注册一些能用的组件；</p><p>​    environment【ConfigurableEnvironment】、</p><p>​    systemProperties【Map<String, Object>】、</p><p>​    systemEnvironment【Map<String, Object>】</p><p>4、postProcessBeanFactory(beanFactory);BeanFactory准备工作完成后进行的后置处理工作；</p><p>  1）、子类通过重写这个方法来在BeanFactory创建并预准备完成以后做进一步的设置</p><p>======================以上是BeanFactory的创建及预准备工作==================================</p><p>5、invokeBeanFactoryPostProcessors(beanFactory);执行BeanFactoryPostProcessor的方法；</p><p>  BeanFactoryPostProcessor：BeanFactory的后置处理器。在BeanFactory标准初始化之后执行的；</p><p>  两个接口：BeanFactoryPostProcessor、BeanDefinitionRegistryPostProcessor</p><p>  1）、执行BeanFactoryPostProcessor的方法；</p><p>​    先执行BeanDefinitionRegistryPostProcessor</p><p>​    1）、获取所有的BeanDefinitionRegistryPostProcessor；</p><p>​    2）、看先执行实现了PriorityOrdered优先级接口的BeanDefinitionRegistryPostProcessor、</p><p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p><p>​    3）、在执行实现了Ordered顺序接口的BeanDefinitionRegistryPostProcessor；</p><p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p><p>​    4）、最后执行没有实现任何优先级或者是顺序接口的BeanDefinitionRegistryPostProcessors；</p><p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p><p>​    再执行BeanFactoryPostProcessor的方法</p><p>​    1）、获取所有的BeanFactoryPostProcessor</p><p>​    2）、看先执行实现了PriorityOrdered优先级接口的BeanFactoryPostProcessor、</p><p>​      postProcessor.postProcessBeanFactory()</p><p>​    3）、在执行实现了Ordered顺序接口的BeanFactoryPostProcessor；</p><p>​      postProcessor.postProcessBeanFactory()</p><p>​    4）、最后执行没有实现任何优先级或者是顺序接口的BeanFactoryPostProcessor；</p><p>​      postProcessor.postProcessBeanFactory()</p><p>6、registerBeanPostProcessors(beanFactory);注册BeanPostProcessor（Bean的后置处理器）【 intercept bean creation】</p><p>​    不同接口类型的BeanPostProcessor；在Bean创建前后的执行时机是不一样的</p><p>​    BeanPostProcessor、</p><p>​    DestructionAwareBeanPostProcessor、</p><p>​    InstantiationAwareBeanPostProcessor、</p><p>​    SmartInstantiationAwareBeanPostProcessor、</p><p>​    MergedBeanDefinitionPostProcessor【internalPostProcessors】、</p><p>​    </p><p>​    1）、获取所有的 BeanPostProcessor;后置处理器都默认可以通过PriorityOrdered、Ordered接口来执行优先级</p><p>​    2）、先注册PriorityOrdered优先级接口的BeanPostProcessor；</p><p>​      把每一个BeanPostProcessor；添加到BeanFactory中</p><p>​      beanFactory.addBeanPostProcessor(postProcessor);</p><p>​    3）、再注册Ordered接口的</p><p>​    4）、最后注册没有实现任何优先级接口的</p><p>​    5）、最终注册MergedBeanDefinitionPostProcessor；</p><p>​    6）、注册一个ApplicationListenerDetector；来在Bean创建完成后检查是否是ApplicationListener，如果是</p><p>​      applicationContext.addApplicationListener((ApplicationListener&lt;?&gt;) bean);</p><p>7、initMessageSource();初始化MessageSource组件（做国际化功能；消息绑定，消息解析）；</p><p>​    1）、获取BeanFactory</p><p>​    2）、看容器中是否有id为messageSource的，类型是MessageSource的组件</p><p>​      如果有赋值给messageSource，如果没有自己创建一个DelegatingMessageSource；</p><p>​        MessageSource：取出国际化配置文件中的某个key的值；能按照区域信息获取；</p><p>​    3）、把创建好的MessageSource注册在容器中，以后获取国际化配置文件的值的时候，可以自动注入MessageSource；</p><p>​      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);   </p><p>​      MessageSource.getMessage(String code, Object[] args, String defaultMessage, Locale locale);</p><p>8、initApplicationEventMulticaster();初始化事件派发器；</p><p>​    1）、获取BeanFactory</p><p>​    2）、从BeanFactory中获取applicationEventMulticaster的ApplicationEventMulticaster；</p><p>​    3）、如果上一步没有配置；创建一个SimpleApplicationEventMulticaster</p><p>​    4）、将创建的ApplicationEventMulticaster添加到BeanFactory中，以后其他组件直接自动注入</p><p>9、onRefresh();留给子容器（子类）</p><p>​    1、子类重写这个方法，在容器刷新的时候可以自定义逻辑；</p><p>10、registerListeners();给容器中将所有项目里面的ApplicationListener注册进来；</p><p>​    1、从容器中拿到所有的ApplicationListener</p><p>​    2、将每个监听器添加到事件派发器中；</p><p>​      getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);</p><p>​    3、派发之前步骤产生的事件；</p><p>11、finishBeanFactoryInitialization(beanFactory);初始化所有剩下的单实例bean；</p><p>  1、beanFactory.preInstantiateSingletons();初始化后剩下的单实例bean</p><p>​    1）、获取容器中的所有Bean，依次进行初始化和创建对象</p><p>​    2）、获取Bean的定义信息；RootBeanDefinition</p><p>​    3）、Bean不是抽象的，是单实例的，是懒加载；</p><p>​      1）、判断是否是FactoryBean；是否是实现FactoryBean接口的Bean；</p><p>​      2）、不是工厂Bean。利用getBean(beanName);创建对象</p><p>​        0、getBean(beanName)； ioc.getBean();</p><p>​        1、doGetBean(name, null, null, false);</p><p>​        2、先获取缓存中保存的单实例Bean。如果能获取到说明这个Bean之前被创建过（所有创建过的单实例Bean都会被缓存起来）</p><p>​          从private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(256);获取的</p><p>​        3、缓存中获取不到，开始Bean的创建对象流程；</p><p>​        4、标记当前bean已经被创建</p><p>​        5、获取Bean的定义信息；</p><p>​        6、【获取当前Bean依赖的其他Bean;如果有按照getBean()把依赖的Bean先创建出来；】</p><p>​        7、启动单实例Bean的创建流程；</p><p>​          1）、createBean(beanName, mbd, args);</p><p>​          2）、Object bean = resolveBeforeInstantiation(beanName, mbdToUse);让BeanPostProcessor先拦截返回代理对象；</p><p>​            【InstantiationAwareBeanPostProcessor】：提前执行；</p><p>​            先触发：postProcessBeforeInstantiation()；</p><p>​            如果有返回值：触发postProcessAfterInitialization()；</p><p>​          3）、如果前面的InstantiationAwareBeanPostProcessor没有返回代理对象；调用4）</p><p>​          4）、Object beanInstance = doCreateBean(beanName, mbdToUse, args);创建Bean</p><p>​             1）、【创建Bean实例】；createBeanInstance(beanName, mbd, args);</p><p>​              利用工厂方法或者对象的构造器创建出Bean实例；</p><p>​             2）、applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);</p><p>​              调用MergedBeanDefinitionPostProcessor的postProcessMergedBeanDefinition(mbd, beanType, beanName);</p><p>​             3）、【Bean属性赋值】populateBean(beanName, mbd, instanceWrapper);</p><p>​              赋值之前：</p><p>​              1）、拿到InstantiationAwareBeanPostProcessor后置处理器；</p><p>​                postProcessAfterInstantiation()；</p><p>​              2）、拿到InstantiationAwareBeanPostProcessor后置处理器；</p><p>​                postProcessPropertyValues()；</p><p>​              =====赋值之前：===</p><p>​              3）、应用Bean属性的值；为属性利用setter方法等进行赋值；</p><p>​                applyPropertyValues(beanName, mbd, bw, pvs);</p><p>​             4）、【Bean初始化】initializeBean(beanName, exposedObject, mbd);</p><p>​              1）、【执行Aware接口方法】invokeAwareMethods(beanName, bean);执行xxxAware接口的方法</p><p>​                BeanNameAware\BeanClassLoaderAware\BeanFactoryAware</p><p>​              2）、【执行后置处理器初始化之前】applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);</p><p>​                BeanPostProcessor.postProcessBeforeInitialization（）;</p><p>​              3）、【执行初始化方法】invokeInitMethods(beanName, wrappedBean, mbd);</p><p>​                1）、是否是InitializingBean接口的实现；执行接口规定的初始化；</p><p>​                2）、是否自定义初始化方法；</p><p>​              4）、【执行后置处理器初始化之后】applyBeanPostProcessorsAfterInitialization</p><p>​                BeanPostProcessor.postProcessAfterInitialization()；</p><p>​             5）、注册Bean的销毁方法；</p><p>​          5）、将创建的Bean添加到缓存中singletonObjects；</p><p>​        ioc容器就是这些Map；很多的Map里面保存了单实例Bean，环境信息。。。。；</p><p>​    所有Bean都利用getBean创建完成以后；</p><p>​      检查所有的Bean是否是SmartInitializingSingleton接口的；如果是；就执行afterSingletonsInstantiated()；</p><p>12、finishRefresh();完成BeanFactory的初始化创建工作；IOC容器就创建完成；</p><p>​    1）、initLifecycleProcessor();初始化和生命周期有关的后置处理器；LifecycleProcessor</p><p>​      默认从容器中找是否有lifecycleProcessor的组件【LifecycleProcessor】；如果没有new DefaultLifecycleProcessor();</p><p>​      加入到容器；</p><p>​      </p><p>​      写一个LifecycleProcessor的实现类，可以在BeanFactory</p><p>​        void onRefresh();</p><p>​        void onClose(); </p><p>​    2）、 getLifecycleProcessor().onRefresh();</p><p>​      拿到前面定义的生命周期处理器（BeanFactory）；回调onRefresh()；</p><p>​    3）、publishEvent(new ContextRefreshedEvent(this));发布容器刷新完成事件；</p><p>​    4）、liveBeansView.registerApplicationContext(this);</p><p>  ======总结===========</p><p>  1）、Spring容器在启动的时候，先会保存所有注册进来的Bean的定义信息；</p><p>​    1）、xml注册bean；<bean></p><p>​    2）、注解注册Bean；@Service、@Component、@Bean、xxx</p><p>  2）、Spring容器会合适的时机创建这些Bean</p><p>​    1）、用到这个bean的时候；利用getBean创建bean；创建好以后保存在容器中；</p><p>​    2）、统一创建剩下所有的bean的时候；finishBeanFactoryInitialization()；</p><p>  3）、后置处理器；BeanPostProcessor</p><p>​    1）、每一个bean创建完成，都会使用各种后置处理器进行处理；来增强bean的功能；</p><p>​      AutowiredAnnotationBeanPostProcessor:处理自动注入</p><p>​      AnnotationAwareAspectJAutoProxyCreator:来做AOP功能；</p><p>​      xxx….</p><p>​      增强的功能注解：</p><p>​      AsyncAnnotationBeanPostProcessor</p><p>​      ….</p><p>  4）、事件驱动模型；</p><p>​    ApplicationListener；事件监听；</p><p>​    ApplicationEventMulticaster；事件派发：<br>​                </p>]]></content>
+        <content type="html"><![CDATA[<p>整个过程开始于客户端发出的一个HTTP请求，Web应用服务器接收到这个请求。如果匹配DispatcherServlet的请求映射路径，则Web容器将该请求转交给DispatcherServlet处理。</p><p>DispatcherServlet接收到这个请求后，将根据请求的信息（包括URL、HTTP方法、请求报文头、请求参数、Cookie等）及HandlerMapping的配置找到处理请求的处理器（Handler）。可将HandlerMapping看做路由控制器，将Handler看做目标主机。值得注意的是，在Spring MVC中并没有定义一个Handler接口，实际上任何一个Object都可以成为请求处理器。</p><p>当DispatcherServlet根据HandlerMapping得到对应当前请求的Handler后，通过HandlerAdapter对Handler进行封装，再以统一的适配器接口调用Handler。HandlerAdapter是Spring MVC框架级接口，顾名思义，HandlerAdapter是一个适配器，它用统一的接口对各种Handler方法进行调用。</p><p>处理器完成业务逻 辑的处理后，将返回一个ModelAndView给DispatcherServlet，ModelAndView包含了视图逻辑名和模型数据信息。</p><p>ModelAndView中包含的是“逻辑视图名”而非真正的视图对象，DispatcherServlet借由ViewResolver完成逻辑视图名到真实视图对象的解析工作。</p><p>当得到真实的视图对象View后，DispatcherServlet就使用这个View对象对ModelAndView中的模型数据进行视图渲染。</p><p>最终客户端得到的响应消息可能是一个普通的HTML页面，也可能是一个XML或JSON串，甚至是一张图片或一个PDF文档等不同的媒体形式。</p>]]></content>
       
       
       <categories>
           
-          <category> spring </category>
+          <category> Spring </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> spring </tag>
+            <tag> Spring </tag>
             
         </tags>
       
@@ -29,186 +29,11 @@
     
     
     <entry>
-      <title>Gateway原理</title>
-      <link href="/2022/12/17/6/"/>
-      <url>/2022/12/17/6/</url>
+      <title>为什么要重写hashCode()和equals()</title>
+      <link href="/2023/05/14/17/"/>
+      <url>/2023/05/14/17/</url>
       
-        <content type="html"><![CDATA[<ul><li><p>Spring Cloud Gateway 使用了 Spring WebFlux 非阻塞网络框架，网络层默认使用了高性能非阻塞的 Netty Server，解决了 Spring Cloud Zuul 因为阻塞的线程模型带来的性能下降的问题。</p><p>Gateway 本身是一个 Spring Boot 应用，它处理请求是逻辑是根据配置的路由对请求进行预处理和转发。Gateway 有几个比较核心的概念：</p><ul><li>Route: 一个 Route 由路由 ID，转发 URI，多个 Predicates 以及多个 Filters 构成。Gateway 上可以配置多个 Routes。处理请求时会按优先级排序，找到第一个满足所有 Predicates 的 Route。</li><li>Predicate: 表示路由的匹配条件，可以用来匹配请求的各种属性，如请求路径、方法、header 等。一个 Route 可以包含多个子 Predicates，多个子 Predicates 最终会合并成一个。</li><li>Filter: 过滤器包括了处理请求和响应的逻辑，可以分为 pre 和 post 两个阶段。多个 Filter 在 pre 阶段会按优先级高到低顺序执行，post 阶段则是反向执行。Gateway 包括两类 Filter<ul><li>全局 Filter: 每种全局 Filter 全局只会有一个实例，会对所有的 Route 都生效。</li><li>路由 Filter: 路由 Filter 是针对 Route 进行配置的，不同的 Route 可以使用不同的参数，因此会创建不同的实例。</li></ul></li></ul><p>下图展示了 Spring Cloud Gateway 的基本工作原理，过程比较简单。</p><p><img src="https://blog-static.fintopia.tech/6bcb3ca84a22808002a2329c95f04684.jpeg" alt="img"></p><p>Gateway 在启动时会创建 Netty Server，由它接收来自 Client 的请求。收到请求后根据路由的匹配条件找到第一个满足条件的路由，然后请求在被该路由配置的过滤器处理后由 Netty Client 转到目标服务。服务返回响应后会再次被过滤器处理，最后返回给 Client。</p><p>下面基于 Spring Cloud Gateway <code>2.2.2.RELEASE</code> 版本，详细介绍一下 Gateway 的实现原理。</p></li></ul><p>  Gateway 使用了 Spring WebFlux 框架，该框架处理请求的入口在类 <code>DispatcherHandler</code> 。它会根据提供的 <code>HandlerMapping</code> 来获取处理请求的 <code>Handler</code> 方法。Gateway 应用对 <code>HandlerMapping</code> 的实现是 <code>RoutePredicateHandlerMapping</code>。</p><p>  下图展示了 Gateway 接收请求的过程。</p><ol><li>进来的请求由 <code>DispatcherHandler</code> 处理。</li><li><code>DispatcherHandler</code> 根据 <code>RoutePredicateHandlerMapping</code> 获取 <code>Handler</code> 方法。</li><li><code>RoutePredicateHandlerMapping</code> 依赖 <code>RouteLocator</code> 获取所有路由配置并根据匹配条件打到请求匹配的路由。</li><li><code>RoutePredicateHandlerMapping</code> 把请求交给 <code>FilteringWebHandler</code> 处理。</li><li><code>FilteringWebHandler</code> 从请求匹配的路由获取对应的路由 Filter，并和全局 Filter 合并构造 <code>GatewayFilterChain</code>，请求最终由 <code>GatewayFilterChain</code> 里的 Filter 按顺序处理。</li></ol>]]></content>
-      
-      
-      <categories>
-          
-          <category> Spring Cloud </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> Spring Cloud </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>nacos原理</title>
-      <link href="/2022/12/17/7/"/>
-      <url>/2022/12/17/7/</url>
-      
-        <content type="html"><![CDATA[<p><img src="https://github.com/xq182/img/blob/main/image-20230329140220294.png?raw=true" alt="image-20230329140220294.png"></p><ul><li>Spring Cloud集成Nacos的实现过程 在Spring-cloud-commons包下的META-INF/spring.factories中包含自动装配的配置信息,其中AutoServiceRegistrationAutoConfiguration就是服务注册相关的配置类,</li><li>在AutoServiceRegistrationAutoConfiguration配置类中，注入了AutoServiceRegistration实例。AbstractAutoServiceRegistration抽象类实现了该接口，最终NacosAutoServiceRegistration继承AbstractAutoServiceRegistration</li></ul><p>客户端最终调用了reqApi方法,把信息封装成params的map向Nacos Server /nacos/v1/ns/instance 接口发送了一个POST请求，把当前实例注册进去，到这里整个客户端的核心注册流程就分析完了</p><p>nacos服务端提供接口请求地址，/v1/ns/instance，具体代码在nacos-naming下的InstanceController</p><p>主要逻辑为</p><ul><li>创建一个空服务，初始化serviceMap</li><li>getService，从serviceMap中根据namespaceid和serviceName得到一个服务对象</li><li>调用addInstance添加到服务对象</li></ul><h2 id="Nacos-Server-的注册表结构"><a href="#Nacos-Server-的注册表结构" class="headerlink" title="Nacos Server 的注册表结构"></a><strong>Nacos Server 的注册表结构</strong></h2><p>说到服务注册，那么首先需要关注的是注册表结构是怎么设计的，Nacos的注册表结构设计方式是一个双重Map结构，定义如下：</p><p><img src="https://pic3.zhimg.com/80/v2-2ee674b09917e7554326d9e48dcb7eb6_1440w.webp" alt="img"></p><p>源码中注释其实已经解释这个双重Map数据结构的存储结构，最外层的Map的Key为Namespace，Value为一个Map，内层的Map的Key为group::serviceName，Value为Service对象。Service对象中也有一个Map的数据结构，如下：</p><p><img src="https://pic4.zhimg.com/80/v2-6a12434e78899e896fbfed4776387cdf_1440w.webp" alt="img"></p><p>Map的Key值为Cluster的名字，Value为Cluster对象，Cluster对象中有两个Set的数据结构，用来存储Instance，这个Instance才是真正的客户端注册过来的实例信息。</p><p><img src="https://pic2.zhimg.com/80/v2-56e651db405fcbc1f8e00a2c29361cf5_1440w.webp" alt="img"></p><p>这里有两个Set，一个是用来存储临时实例，一个是用来存储持久化实例，有个关键点，什么情况会存储在临时实例，什么情况下会存储持久化实例，这个是由客户端的配置来决定的，默认情况下客户端配置ephemeral=true，如果你想把实例用持久化的方式来存储，可以设置ephemeral=false，这样在客户端发起注册的时候会把这个参数带到Nacos Server，Nacos Server就会按照持久化的方式来存储。</p><p><strong>注意：Nacos目前持久化存储的方式采用的是本地文件存储的方式。</strong></p>]]></content>
-      
-      
-      <categories>
-          
-          <category> springcloud </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> springcloud </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>OpenFeign原理</title>
-      <link href="/2022/12/17/8/"/>
-      <url>/2022/12/17/8/</url>
-      
-        <content type="html"><![CDATA[<p>Feign底层默认是JDK自带的HttpURLConnection,它是单线程发送HTTP请求的，不能配置线程池，我们使用<br>Ckhttp或者HttpClient来发送http请求，并且它们两个都支持线程池。</p><p>1、在 Spring 项目启动阶段，服务 A 的OpenFeign 框架会发起一个主动的扫包流程。<br>2、从指定的目录下扫描并加载所有被 @FeignClient 注解修饰的接口，然后将这些接口转换成 Bean，统一交给 Spring 来管理。<br>3、根据这些接口会经过 MVC Contract 协议解析，将方法上的注解都解析出来，放到 MethodMetadata 元数据中。<br>4、基于上面加载的每一个 FeignClient 接口，会生成一个动态代理对象，指向了一个包含对应方法的 MethodHandler 的 HashMap。MethodHandler 对元数据有引用关系。生成的动态代理对象会被添加到 Spring 容器中，并注入到对应的服务里。<br>5、服务 A 调用接口，准备发起远程调用。<br>6、从动态代理对象 Proxy 中找到一个 MethodHandler 实例，生成 Request，包含有服务的请求 URL(不包含服务的 IP)。<br>7、经过负载均衡算法找到一个服务的 IP 地址，拼接出请求的 URL<br>8、服务 B 处理服务 A 发起的远程调用请求，执行业务逻辑后，返回响应给服务 A。</p><p>(1)@EnableFeignClients 这个注解使用 Spring 框架的 Import 注解导入了 FeignClientsRegistrar 类，开始了 OpenFeign 组件的加载。PassJava 示例代码如下所示。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 启动类加上这个注解 </span><br><span class="line">@EnableFeignClients(basePackages = &quot;com.jackson0714.passjava.member.feign&quot;) </span><br><span class="line"> </span><br><span class="line">// EnableFeignClients 类还引入了 FeignClientsRegistrar 类 </span><br><span class="line">@Import(FeignClientsRegistrar.class) </span><br><span class="line">public @interface EnableFeignClients &#123; </span><br><span class="line">  ... </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure><p>(2)FeignClientsRegistrar 负责 Feign 接口的加载。</p><p>源码如下所示：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Override </span><br><span class="line">public void registerBeanDefinitions(AnnotationMetadata metadata, </span><br><span class="line">      BeanDefinitionRegistry registry) &#123; </span><br><span class="line">   // 注册配置 </span><br><span class="line">   registerDefaultConfiguration(metadata, registry); </span><br><span class="line">   // 注册 FeignClient </span><br><span class="line">   registerFeignClients(metadata, registry); </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure><p>(3)registerFeignClients 会扫描指定包。</p><p>核心源码如下，调用 find 方法来查找指定路径 basePackage 的所有带有 @FeignClients 注解的带有 @FeignClient 注解的类、接口。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;BeanDefinition&gt; candidateComponents = scanner </span><br><span class="line">      .findCandidateComponents(basePackage); </span><br></pre></td></tr></table></figure><p>(4)只保留带有 @FeignClient 的接口。</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 判断是否是带有注解的 Bean。 </span></span><br><span class="line"><span class="keyword">if</span> (candidateComponent <span class="keyword">instanceof</span> AnnotatedBeanDefinition) &#123; </span><br><span class="line">  <span class="comment">// 判断是否是接口 </span></span><br><span class="line">   <span class="type">AnnotatedBeanDefinition</span> <span class="variable">beanDefinition</span> <span class="operator">=</span> (AnnotatedBeanDefinition) candidateComponent; </span><br><span class="line">   <span class="type">AnnotationMetadata</span> <span class="variable">annotationMetadata</span> <span class="operator">=</span> beanDefinition.getMetadata(); </span><br><span class="line">  <span class="comment">// @FeignClient 只能指定在接口上。 </span></span><br><span class="line">   Assert.isTrue(annotationMetadata.isInterface(), </span><br><span class="line">         <span class="string">&quot;@FeignClient can only be specified on an interface&quot;</span>); </span><br></pre></td></tr></table></figure><p>在创建 FeignClient Bean 的过程中就会去生成动态代理对象。调用接口时，其实就是调用动态代理对象的方法来发起请求的。</p><p>分析动态代理的入口方法为 getObject()。源码如下所示：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Targeter targeter = get(context, Targeter.class); </span><br><span class="line">return (T) targeter.target(this, builder, context, </span><br><span class="line">      new HardCodedTarget&lt;&gt;(this.type, this.name, url)); </span><br></pre></td></tr></table></figure><p>接着调用 target 方法这一块，里面的代码真的很多很细，我把核心的代码拿出来给大家讲下，这个 target 会有两种实现类：</p><p>DefaultTargeter 和 HystrixTargeter。而不论是哪种 target，都需要去调用 Feign.java 的 builder 方法去构造一个 feign client。</p><p>在构造的过程中，依赖 ReflectiveFeign 去构造。源码如下：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 省略部分代码 </span><br><span class="line">public class ReflectiveFeign extends Feign &#123; </span><br><span class="line">  // 为 feign client 接口中的每个接口方法创建一个 methodHandler </span><br><span class="line"> public &lt;T&gt; T newInstance(Target&lt;T&gt; target) &#123; </span><br><span class="line">    for(...) &#123; </span><br><span class="line">      methodToHandler.put(method, handler); </span><br><span class="line">    &#125; </span><br><span class="line">    // 基于 JDK 动态代理的机制，创建了一个 passjava-study 接口的动态代理，所有对接口的调用都会被拦截，然后转交给 handler 的方法。 </span><br><span class="line">    InvocationHandler handler = factory.create(target, methodToHandler); </span><br><span class="line">    T proxy = (T) Proxy.newProxyInstance(target.type().getClassLoader(), </span><br><span class="line">          new Class&lt;?&gt;[] &#123;target.type()&#125;, handler); </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure><p>ReflectiveFeign 做的工作就是为带有 @FeignClient 注解的接口，创建出接口方法的动态代理对象。</p><p>比如示例代码中的接口 StudyTimeFeignService，会给这个接口中的方法 getMemberStudyTimeList 创建一个动态代理对象。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@FeignClient(&quot;passjava-study&quot;) </span><br><span class="line">public interface StudyTimeFeignService &#123; </span><br><span class="line">    @RequestMapping(&quot;study/studytime/member/list/test/&#123;id&#125;&quot;) </span><br><span class="line">    public R getMemberStudyTimeList(@PathVariable(&quot;id&quot;) Long id); </span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure><p>创建动态代理的原理图如下所示：</p><p><img src="https://img.bestxq.live//20230329204430.png" alt="img"></p><p>解析 FeignClient 接口上各个方法级别的注解，比如远程接口的 URL、接口类型(Get、Post 等)、各个请求参数等。这里用到了 MVC Contract 协议解析，后面会讲到。</p><ul><li>然后将解析到的数据封装成元数据，并为每一个方法生成一个对应的 MethodHandler 类作为方法级别的代理。相当于把服务的请求地址、接口类型等都帮我们封装好了。这些 MethodHandler 方法会放到一个 HashMap 中。</li><li>然后会生成一个 InvocationHandler 用来管理这个 hashMap，其中 Dispatch 指向这个 HashMap。</li><li>然后使用 Java 的 JDK 原生的动态代理，实现了 FeignClient 接口的动态代理 Proxy 对象。这个 Proxy 会添加到 Spring 容器中。</li><li>当要调用接口方法时，其实会调用动态代理 Proxy 对象的 methodHandler 来发送请求。</li></ul><p>这个动态代理对象的结构如下所示，它包含了所有接口方法的 MethodHandler。</p><p><img src="https://img.bestxq.live//20230329204751.png" alt="img"></p>]]></content>
-      
-      
-      <categories>
-          
-          <category> springcloud </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> springcloud </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Redis是单线程的，为什么还能这么快？</title>
-      <link href="/2022/12/17/4/"/>
-      <url>/2022/12/17/4/</url>
-      
-        <content type="html"><![CDATA[<ol><li>对服务端程序来说，线程切换和锁通常是性能杀手，而单线程避免了线程切换和竞争所产生的消耗；</li><li>Redis的大部分操作是在内存上完成的，这是它实现高性能的一个重要原因；</li><li>Redis采用了IO多路复用机制，使其在网络IO操作中能并发处理大量的客户端请求，实现高吞吐率。</li></ol><p>关于Redis的单线程架构实现，如下图：</p><p><img src="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645694890446/7D358C4626AF51725C251A2611C5DD65" alt="img"></p>]]></content>
-      
-      
-      <categories>
-          
-          <category> 中间件 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 中间件 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Sentinel原理</title>
-      <link href="/2022/12/17/5/"/>
-      <url>/2022/12/17/5/</url>
-      
-        <content type="html"><![CDATA[<p>在 Sentinel 里面，所有的资源都对应一个资源名称（<code>resourceName</code>），每次资源调用都会创建一个 <code>Entry</code> 对象。Entry 可以通过对主流框架的适配自动创建，也可以通过注解的方式或调用 <code>SphU</code> API 显式创建。Entry 创建的时候，同时也会创建一系列功能插槽（slot chain），这些插槽有不同的职责，例如:</p><ul><li><strong><code>NodeSelectorSlot</code></strong> ：收集资源的路径，并将这些资源的调用路径，以树状结构存储起来，用于根据调用路径来限流降级；</li><li><strong><code>ClusterBuilderSlot</code></strong> ：用于存储资源的统计信息以及调用者信息，例如该资源的 RT, QPS, thread count 等等，这些信息将用作为多维度限流，降级的依据；</li><li><strong><code>StatisticSlot</code></strong> ：用于记录、统计不同纬度的 runtime 指标监控信息；</li><li><strong><code>SystemSlot</code></strong> ：通过系统的状态，例如 load1 等，来控制总的入口流量；</li><li><strong><code>AuthoritySlot</code></strong> ：根据配置的黑白名单和调用来源信息，来做黑白名单控制；</li><li><strong><code>FlowSlot</code></strong> ：用于根据预设的限流规则以及前面 slot 统计的状态，来进行流量控制；</li><li><strong><code>DegradeSlot</code></strong> ：通过统计信息以及预设的规则，来做熔断降级；</li></ul><p>总体的框架如下:</p><p><img src="https://img.bestxq.live//20230329205232.png" alt="img"></p><p>　　从这个架构图可以发现，整个调用链中最核心的就是 <strong><code>StatisticSlot</code>(</strong>用于记录、统计不同纬度的 runtime 指标监控信息) 以及<strong><code>FlowSlot</code>(</strong>根据预设的限流规则以及前面 slot 统计的状态，来进行流量控制）.</p><p>　　Chain是链条的意思，从build的方法可看出，ProcessorSlotChain是一个链表，里面添加了很多个Slot。具体的实现需要到DefaultProcessorSlotChain中去看。</p><p>   着重注意两个 Slot ，就像我们使用的时候一样，我们需要配置规则，那么在Sentinel 中去校验这个规则的是 FlowSlot ，既然是一个做规则匹配的，那么进行匹配的数据是哪里来的呢？ 在Sentinel中他提供了一个Slot 来统计这些数据，然后交给FlowSlot进行校验，他就是<code>StatisticSlot</code>。我们首先来看<code>StatisticSlot</code>的entry方法中的实现逻辑：代码分成了两部分，第一部分是entry方法，该方法首先会触发后续slot的entry方法，即SystemSlot、FlowSlot、DegradeSlot等的规则，如果规则不通过，就会抛出BlockException，则会在node中统计被block的数量。反之会在node中统计通过的请求数和线程数等信息。第二部分是在exit方法中，当退出该Entry入口时，会统计rt的时间，并减少线程数。</p><p>　　我们可以看到 <code>node.addPassRequest()</code> 这段代码是在fireEntry执行之后执行的，这意味着，当前请求通过了sentinel的流控等规则，此时需要将当次请求记录下来，也就是执行 <code>node.addPassRequest()</code>这行代码，我们跟进去看看：首先我们知道这里的node是一个 DefaultNode 实例，在第一个NodeSelectorSlot 的entry方法中对资源进行了封装，封装成了一个DefaultNode。</p><ul><li><p>DefaultNode：保存着某个resource在某个context中的实时指标，每个DefaultNode都指向一个ClusterNode</p></li><li><p>ClusterNode：保存着某个resource在所有的context中实时指标的总和，同样的resource会共享同一个ClusterNode，不管他在哪个context中</p><p>　　从代码中我们可以看到，增加指标调用 addPass 是通过一个叫 ArrayMetric 的类，现在我们在进入 ArrayMetric 中看一下</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private final LeapArray&lt;MetricBucket&gt; data;</span><br><span class="line">// SAMPLE_COUNT=2  INTERVAL=1000</span><br><span class="line">public ArrayMetric(int sampleCount, int intervalInMs) &#123;</span><br><span class="line">    this.data = new OccupiableBucketLeapArray(sampleCount, intervalInMs);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public void addPass(int count) &#123;</span><br><span class="line">    WindowWrap&lt;MetricBucket&gt; wrap = data.currentWindow();</span><br><span class="line">    wrap.value().addPass(count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public abstract class LeapArray&lt;T&gt; &#123;</span><br><span class="line"></span><br><span class="line">    // 时间窗口的长度</span><br><span class="line">    protected int windowLength;</span><br><span class="line">    // 采样窗口的个数</span><br><span class="line">    protected int sampleCount;</span><br><span class="line">    // 以毫秒为单位的时间间隔</span><br><span class="line">    protected int intervalInMs;</span><br><span class="line"></span><br><span class="line">    // 采样的时间窗口数组</span><br><span class="line">    protected AtomicReferenceArray&lt;WindowWrap&lt;T&gt;&gt; array;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * LeapArray对象</span><br><span class="line">     * @param windowLength 时间窗口的长度，单位：毫秒</span><br><span class="line">     * @param intervalInSec 统计的间隔，单位：秒</span><br><span class="line">     */</span><br><span class="line">    public LeapArray(int windowLength, int intervalInSec) &#123;</span><br><span class="line">        this.windowLength = windowLength;</span><br><span class="line">        // 时间窗口的采样个数，默认为2个采样窗口</span><br><span class="line">        this.sampleCount = intervalInSec * 1000 / windowLength;</span><br><span class="line">        this.intervalInMs = intervalInSec * 1000;</span><br><span class="line"></span><br><span class="line">        this.array = new AtomicReferenceArray&lt;WindowWrap&lt;T&gt;&gt;(sampleCount);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public class WindowWrap&lt;T&gt; &#123;</span><br><span class="line">　　// 时间窗口的长度</span><br><span class="line">    private final long windowLengthInMs;</span><br><span class="line">　　// 时间窗口的开始时间，单位是毫秒</span><br><span class="line">    private long windowStart;</span><br><span class="line">　　 //时间窗口的内容，在 WindowWrap 中是用泛型表示这个值的，但实际上就是 MetricBucket 类</span><br><span class="line">    private T value;</span><br><span class="line">    //......省略部分代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p><img src="https://github.com/xq182/img/blob/main/image-20230329165726095.png?raw=true" alt="image-20230329165726095.png"></p><p>可以很清晰的看出来在 <code>LeapArray</code> 中创建了一个 AtomicReferenceArray 数组，用来对时间窗口中的统计值进行采样。通过采样的统计值再计算出平均值，就是我们需要的最终的实时指标的值了。可以看到我在上面的代码中通过注释，标明了默认采样的时间窗口的个数是2个，这个值是怎么得到的呢？我们回忆一下 <code>LeapArray</code> 对象创建，是通过在 <code>StatisticNode</code> 中，new了一个 <code>ArrayMetric</code>，然后将参数一路往上传递后创建的：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">private transient volatile Metric rollingCounterInSecond = new ArrayMetric(SampleCountProperty.SAMPLE_COUNT,IntervalProperty.INTERVAL);</span><br></pre></td></tr></table></figure><p>我们跟进获取当前窗口的方法 data.currentWindow() 中：</p><p>代码很长，我们逐步将其分解，我们实际可以把他分成以下几步：</p><ol><li>根据当前时间，算出该时间的timeId，并根据timeId算出当前窗口在采样窗口数组中的索引idx。</li><li>根据当前时间算出当前窗口的应该对应的开始时间time，以毫秒为单位。</li><li>根据索引idx，在采样窗口数组中取得一个时间窗口。</li><li>循环判断直到获取到一个当前时间窗口 old 。<ol><li>如果old为空，则创建一个时间窗口，并将它插入到array的第idx个位置，array上面已经分析过了，是一个 AtomicReferenceArray。</li><li>如果当前窗口的开始时间time与old的开始时间相等，那么说明old就是当前时间窗口，直接返回old。</li><li>如果当前窗口的开始时间time大于old的开始时间，则说明old窗口已经过时了，将old的开始时间更新为最新值：time，进入下一次得循环再判断当前窗口的开始时间time与old的开始时间相等的时候返回。</li><li>如果当前窗口的开始时间time小于old的开始时间，实际上这种情况是不可能存在的，因为time是当前时间，old是过去的一个时间。</li></ol></li></ol><p>　　另外timeId是会随着时间的增长而增加，当前时间每增长一个windowLength的长度，timeId就加1。但是idx不会增长，只会在0和1之间变换，因为array数组的长度是2，只有两个采样时间窗口。至于为什么默认只有两个采样窗口，个人觉得因为sentinel是比较轻量的框架。时间窗口中保存着很多统计数据，如果时间窗口过多的话，一方面会占用过多内存，另一方面时间窗口过多就意味着时间窗口的长度会变小，如果时间窗口长度变小，就会导致时间窗口过于频繁的滑动。</p><p>先来看一下其中的第一步及第二步：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">private int calculateTimeIdx(/*@Valid*/ long timeMillis) &#123;</span><br><span class="line">    // time每增加一个windowLength的长度，timeId就会增加1，时间窗口就会往前滑动一个</span><br><span class="line">    long timeId = timeMillis / windowLengthInMs;</span><br><span class="line">     // idx被分成[0,arrayLength-1]中的某一个数，作为array数组中的索引</span><br><span class="line">    return (int)(timeId % array.length());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">protected long calculateWindowStart(/*@Valid*/ long timeMillis) &#123;</span><br><span class="line">    return timeMillis - timeMillis % windowLengthInMs;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure><p>以此类推随着时间的流逝，时间窗口也在发生变化，在当前时间点中进入的请求，会被统计到当前时间对应的时间窗口中，回到addpass 方法中：获取到窗口以后会进入到 wrap.value().addPass(count); QPS的增加。而这里的 wrap.value() 得到的是之前提到的 MetricBucket ，在 Sentinel 中QPS相关数据的统计结果是维护在这个类的 LongAdder[] 中，最终由这个指标来与我们实现设置好的规则进行匹配，查看是否限流，也就是 StatisticSlot</p><p>的entry 方法中的 fireEntry(context, resourceWrapper, node, count, prioritized, args); 都要先进入到  FlowSlot的entry方法进行限流过滤：</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> Spring Cloud </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> Spring Cloud </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>我对Spring Boot的理解</title>
-      <link href="/2022/12/17/3/"/>
-      <url>/2022/12/17/3/</url>
-      
-        <content type="html"><![CDATA[<p>从本质上来说，Spring Boot就是Spring，它做了那些没有它你自己也会去做的Spring Bean配置。Spring Boot使用“习惯优于配置”的理念让你的项目快速地运行起来，使用Spring Boot很容易创建一个能独立运行、准生产级别、基于Spring框架的项目，使用Spring Boot你可以不用或者只需要很少的Spring配置。</p><p>简而言之，Spring Boot本身并不提供Spring的核心功能，而是作为Spring的脚手架框架，以达到快速构建项目、预置三方配置、开箱即用的目的。Spring Boot有如下的优点：</p><ul><li>可以快速构建项目；</li><li>可以对主流开发框架的无配置集成；</li><li>项目可独立运行，无需外部依赖Servlet容器；</li><li>提供运行时的应用监控；</li><li>可以极大地提高开发、部署效率；</li><li>可以与云计算天然集成。</li></ul>]]></content>
-      
-      
-      <categories>
-          
-          <category> spring </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> spring </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Spring的核心是什么</title>
-      <link href="/2022/12/17/2/"/>
-      <url>/2022/12/17/2/</url>
-      
-        <content type="html"><![CDATA[<p>Spring框架包含众多模块，如Core、Testing、Data Access、Web Servlet等，其中Core是整个Spring框架的核心模块。Core模块提供了IoC容器、AOP功能、数据绑定、类型转换等一系列的基础功能，而这些功能以及其他模块的功能都是建立在IoC和AOP之上的，所以IoC和AOP是Spring框架的核心。</p><p>IoC（Inversion of Control）是控制反转的意思，这是一种面向对象编程的设计思想。在不采用这种思想的情况下，我们需要自己维护对象与对象之间的依赖关系，很容易造成对象之间的耦合度过高，在一个大型的项目中这十分的不利于代码的维护。IoC则可以解决这种问题，它可以帮我们维护对象与对象之间的依赖关系，降低对象之间的耦合度。</p><p>说到IoC就不得不说DI（Dependency Injection），DI是依赖注入的意思，它是IoC实现的实现方式，就是说IoC是通过DI来实现的。由于IoC这个词汇比较抽象而DI却更直观，所以很多时候我们就用DI来代替它，在很多时候我们简单地将IoC和DI划等号，这是一种习惯。而实现依赖注入的关键是IoC容器，它的本质就是一个工厂。</p><p>AOP（Aspect Oriented Programing）是面向切面编程思想，这种思想是对OOP的补充，它可以在OOP的基础上进一步提高编程的效率。简单来说，它可以统一解决一批组件的共性需求（如权限检查、记录日志、事务管理等）。在AOP思想下，我们可以将解决共性需求的代码独立出来，然后通过配置的方式，声明这些代码在什么地方、什么时机调用。当满足调用条件时，AOP会将该业务代码织入到我们指定的位置，从而统一解决了问题，又不需要修改这一批组件的代码。</p>]]></content>
-      
-      
-      <categories>
-          
-          <category> spring </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> spring </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>Java基础知识</title>
-      <link href="/2022/12/14/1/"/>
-      <url>/2022/12/14/1/</url>
-      
-        <content type="html"><![CDATA[<h3 id="Java-语言有哪些特点"><a href="#Java-语言有哪些特点" class="headerlink" title="Java 语言有哪些特点?"></a>Java 语言有哪些特点?</h3><ol><li>简单易学；</li><li>面向对象（封装，继承，多态）；</li><li>平台无关性（ Java 虚拟机实现平台无关性）；</li><li>支持多线程（ C++ 语言没有内置的多线程机制，因此必须调用操作系统的多线程功能来进行多线程程序设计，而 Java 语言却提供了多线程支持）；</li><li>可靠性；</li><li>安全性；</li><li>支持网络编程并且很方便（ Java 语言诞生本身就是为简化网络编程设计的，因此 Java 语言不仅支持网络编程而且很方便）；</li><li>编译与解释并存；</li></ol><blockquote><p><strong>🐛 修正（参见： <a href="https://github.com/Snailclimb/JavaGuide/issues/544">issue#544open in new window</a>）</strong> ：C++11 开始（2011 年的时候）,C++就引入了多线程库，在 windows、linux、macos 都可以使用<code>std::thread</code>和<code>std::async</code>来创建线程。参考链接：<a href="http://www.cplusplus.com/reference/thread/thread/?kw=thread">http://www.cplusplus.com/reference/thread/thread/?kw=thread</a></p></blockquote><p>🌈 拓展一下：</p><p>“Write Once, Run Anywhere（一次编写，随处运行）”这句宣传口号，真心经典，流传了好多年！以至于，直到今天，依然有很多人觉得跨平台是 Java 语言最大的优势。实际上，跨平台已经不是 Java 最大的卖点了，各种 JDK 新特性也不是。目前市面上虚拟化技术已经非常成熟，比如你通过 Docker 就很容易实现跨平台了。在我看来，Java 强大的生态才是！</p><h3 id="JVM-vs-JDK-vs-JRE"><a href="#JVM-vs-JDK-vs-JRE" class="headerlink" title="# JVM vs JDK vs JRE"></a><a href="#jvm-vs-jdk-vs-jre">#</a> JVM vs JDK vs JRE</h3><h4 id="JVM"><a href="#JVM" class="headerlink" title="# JVM"></a><a href="#jvm">#</a> JVM</h4><p>Java 虚拟机（JVM）是运行 Java 字节码的虚拟机。JVM 有针对不同系统的特定实现（Windows，Linux，macOS），目的是使用相同的字节码，它们都会给出相同的结果。字节码和不同系统的 JVM 实现是 Java 语言“一次编译，随处可以运行”的关键所在。</p><p><strong>JVM 并不是只有一种！只要满足 JVM 规范，每个公司、组织或者个人都可以开发自己的专属 JVM。</strong> 也就是说我们平时接触到的 HotSpot VM 仅仅是是 JVM 规范的一种实现而已。</p><p>除了我们平时最常用的 HotSpot VM 外，还有 J9 VM、Zing VM、JRockit VM 等 JVM 。维基百科上就有常见 JVM 的对比：<a href="https://en.wikipedia.org/wiki/Comparison_of_Java_virtual_machines">Comparison of Java virtual machinesopen in new window</a> ，感兴趣的可以去看看。并且，你可以在 <a href="https://docs.oracle.com/javase/specs/index.html">Java SE Specificationsopen in new window</a> 上找到各个版本的 JDK 对应的 JVM 规范。</p><p><img src="https://guide-blog-images.oss-cn-shenzhen.aliyuncs.com/github/javaguide/java/basis/JavaSeSpecifications.jpg" alt="img"></p>]]></content>
+        <content type="html"><![CDATA[<p>Object类提供的equals()方法默认是用==来进行比较的，也就是说只有两个对象是同一个对象时，才能返回相等的结果。而实际的业务中，我们通常的需求是，若两个不同的对象它们的内容是相同的，就认为它们相等。鉴于这种情况，Object类中equals()方法的默认实现是没有实用价值的，所以通常都要重写。</p><p>由于hashCode()与equals()具有联动关系（参考“说一说hashCode()和equals()的关系”一题），所以equals()方法重写时，通常也要将hashCode()进行重写，使得这两个方法始终满足相关的约定。</p>]]></content>
       
       
       <categories>
@@ -221,6 +46,106 @@
         <tags>
             
             <tag> java </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Java的数据类型</title>
+      <link href="/2023/05/14/16/"/>
+      <url>/2023/05/14/16/</url>
+      
+        <content type="html"><![CDATA[<p>Java数据类型包括基本数据类型和引用数据类型两大类。</p><p>基本数据类型有8个，可以分为4个小类，分别是整数类型（byte/short/int/long）、浮点类型（float/double）、字符类型（char）、布尔类型（boolean）。其中，4个整数类型中，int类型最为常用。2个浮点类型中，double最为常用。另外，在这8个基本类型当中，除了布尔类型之外的其他7个类型，都可以看做是数字类型，它们相互之间可以进行类型转换。</p><p>引用类型就是对一个对象的引用，根据引用对象类型的不同，可以将引用类型分为3类，即数组、类、接口类型。引用类型本质上就是通过指针，指向堆中对象所持有的内存空间，只是Java语言不再沿用指针这个说法而已。</p><p>扩展阅读</p><p>对于基本数据类型，你需要了解每种类型所占据的内存空间，面试官可能会追问这类问题：</p><p>byte：1字节（8位），数据范围是 -2^7 ~ 2^7-1。</p><p>short：2字节（16位），数据范围是 -2^15 ~ 2^15-1。</p><p>int：4字节（32位），数据范围是 -2^31 ~ 2^31-1。</p><p>long：8字节（64位），数据范围是 -2^63 ~ 2^63-1。</p><p>float：4字节（32位），数据范围大约是 -3.4<em>10^38 ~ 3.4</em>10^38。</p><p>double：8字节（64位），数据范围大约是 -1.8<em>10^308 ~ 1.8</em>10^308。</p><p>char：2字节（16位），数据范围是 \u0000 ~ \uffff。</p><p>boolean：Java规范没有明确的规定，不同的JVM有不同的实现机制。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> java </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>消息队列如何保证顺序消费</title>
+      <link href="/2023/05/14/15/"/>
+      <url>/2023/05/14/15/</url>
+      
+        <content type="html"><![CDATA[<p>在生产中经常会有一些类似报表系统这样的系统，需要做 MySQL 的 binlog 同步。比如订单系统要同步订单表的数据到大数据部门的 MySQL 库中用于报表统计分析，通常的做法是基于 Canal 这样的中间件去监听订单数据库的 binlog，然后把这些 binlog 发送到 MQ 中，再由消费者从 MQ 中获取 binlog 落地到大数据部门的 MySQL 中。</p><p>在这个过程中，可能会有对某个订单的增删改操作，比如有三条 binlog 执行顺序是增加、修改、删除。消费者愣是换了顺序给执行成删除、修改、增加，这样能行吗？肯定是不行的。不同的消息队列产品，产生消息错乱的原因，以及解决方案是不同的。下面我们以RabbitMQ、Kafka、RocketMQ为例，来说明保证顺序消费的办法。</p><p>RabbitMQ：</p><p>对于 RabbitMQ 来说，导致上面顺序错乱的原因通常是消费者是集群部署，不同的消费者消费到了同一订单的不同的消息。如消费者A执行了增加，消费者B执行了修改，消费者C执行了删除，但是消费者C执行比消费者B快，消费者B又比消费者A快，就会导致消费 binlog 执行到数据库的时候顺序错乱，本该顺序是增加、修改、删除，变成了删除、修改、增加。</p><p>RabbitMQ 的问题是由于不同的消息都发送到了同一个 queue 中，多个消费者都消费同一个 queue 的消息。解决这个问题，我们可以给 RabbitMQ 创建多个 queue，每个消费者固定消费一个 queue 的消息，生产者发送消息的时候，同一个订单号的消息发送到同一个 queue 中，由于同一个 queue 的消息是一定会保证有序的，那么同一个订单号的消息就只会被一个消费者顺序消费，从而保证了消息的顺序性。</p><p>Kafka：</p><p>对于 Kafka 来说，一个 topic 下同一个 partition 中的消息肯定是有序的，生产者在写的时候可以指定一个 key，通过我们会用订单号作为 key，这个 key 对应的消息都会发送到同一个 partition 中，所以消费者消费到的消息也一定是有序的。</p><p>那么为什么 Kafka 还会存在消息错乱的问题呢？问题就出在消费者身上。通常我们消费到同一个 key 的多条消息后，会使用多线程技术去并发处理来提高消息处理速度，否则一条消息的处理需要耗时几十 毫秒，1 秒也就只能处理几十条消息，吞吐量就太低了。而多线程并发处理的话，binlog 执行到数据库的时候就不一定还是原来的顺序了。</p><p>Kafka 从生产者到消费者消费消息这一整个过程其实都是可以保证有序的，导致最终乱序是由于消费者端需要使用多线程并发处理消息来提高吞吐量，比如消费者消费到了消息以后，开启 32 个线程处理消息，每个线程线程处理消息的快慢是不一致的，所以才会导致最终消息有可能不一致。</p><p>所以对于 Kafka 的消息顺序性保证，其实我们只需要保证同一个订单号的消息只被同一个线程处理的就可以了。由此我们可以在线程处理前增加个内存队列，每个线程只负责处理其中一个内存队列的消息，同一个订单号的消息发送到同一个内存队列中即可。</p><p>RocketMQ：</p><p>对于 RocketMQ 来说，每个 Topic 可以指定多个 MessageQueue，当我们写入消息的时候，会把消息均匀地分发到不同的 MessageQueue 中，比如同一个订单号的消息，增加 binlog 写入到 MessageQueue1 中，修改 binlog 写入到 MessageQueue2 中，删除 binlog 写入到 MessageQueue3 中。</p><p>但是当消费者有多台机器的时候，会组成一个 Consumer Group，Consumer Group 中的每台机器都会负责消费一部分 MessageQueue 的消息，所以可能消费者A消费了 MessageQueue1 的消息执行增加操作，消费者B消费了 MessageQueue2 的消息执行修改操作，消费者C消费了 MessageQueue3 的消息执行删除操作，但是此时消费 binlog 执行到数据库的时候就不一定是消费者A先执行了，有可能消费者C先执行删除操作，因为几台消费者是并行执行，是不能够保证他们之间的执行顺序的。</p><p>RocketMQ 的消息乱序是由于同一个订单号的 binlog 进入了不同的 MessageQueue，进而导致一个订单的 binlog 被不同机器上的 Consumer 处理。</p><p>要解决 RocketMQ 的乱序问题，我们只需要想办法让同一个订单的 binlog 进入到同一个 MessageQueue 中就可以了。因为同一个 MessageQueue 内的消息是一定有序的，一个 MessageQueue 中的消息只能交给一个 Consumer 来进行处理，所以 Consumer 消费的时候就一定会是有序的。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 消息队列 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 消息队列 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>高可用系统设计指南</title>
+      <link href="/2023/05/14/14/"/>
+      <url>/2023/05/14/14/</url>
+      
+        <content type="html"><![CDATA[<p>什么是高可用？可用性的判断标准是啥？高可用描述的是一个系统在大部分时间都是可用的，可以为我们提供服务的。高可用代表系统即使在发生硬件故障或者系统升级的时候，服务仍然是可用的。一般情况下，我们使用多少个 9 来评判一个系统的可用性，比如 99.9999% 就是代表该系统在所有的运行时间中只有 0.0001% 的时间是不可用的，这样的系统就是非常非常高可用的了！当然，也会有系统如果可用性不太好的话，可能连 9 都上不了。除此之外，系统的可用性还可以用某功能的失败次数与总的请求次数之比来衡量，比如对网站请求 1000 次，其中有 10 次请求失败，那么可用性就是 99%。# 哪些情况会导致系统不可用？黑客攻击；硬件故障，比如服务器坏掉。并发量/用户请求量激增导致整个服务宕掉或者部分服务不可用。代码中的坏味道导致内存泄漏或者其他问题导致程序挂掉。网站架构某个重要的角色比如 Nginx 或者数据库突然不可用。自然灾害或者人为破坏。……# 有哪些提高系统可用性的方法？# 注重代码质量，测试严格把关我觉得这个是最最最重要的，代码质量有问题比如比较常见的内存泄漏、循环依赖都是对系统可用性极大的损害。大家都喜欢谈限流、降级、熔断，但是我觉得从代码质量这个源头把关是首先要做好的一件很重要的事情。如何提高代码质量？比较实际可用的就是 CodeReview，不要在乎每天多花的那 1 个小时左右的时间，作用可大着呢！另外，安利几个对提高代码质量有实际效果的神器：Sonarqubeopen in new window；Alibaba 开源的 Java 诊断工具 Arthasopen in new window；阿里巴巴 Java 代码规范open in new window（Alibaba Java Code Guidelines）；IDEA 自带的代码分析等工具。# 使用集群，减少单点故障先拿常用的 Redis 举个例子！我们如何保证我们的 Redis 缓存高可用呢？答案就是使用集群，避免单点故障。当我们使用一个 Redis 实例作为缓存的时候，这个 Redis 实例挂了之后，整个缓存服务可能就挂了。使用了集群之后，即使一台 Redis 实例挂了，不到一秒就会有另外一台 Redis 实例顶上。# 限流流量控制（flow control），其原理是监控应用流量的 QPS 或并发线程数等指标，当达到指定的阈值时对流量进行控制，以避免被瞬时的流量高峰冲垮，从而保障应用的高可用性。——来自 alibaba-Sentinelopen in new window 的 wiki。# 超时和重试机制设置一旦用户请求超过某个时间的得不到响应，就抛出异常。这个是非常重要的，很多线上系统故障都是因为没有进行超时设置或者超时设置的方式不对导致的。我们在读取第三方服务的时候，尤其适合设置超时和重试机制。一般我们使用一些 RPC 框架的时候，这些框架都自带的超时重试的配置。如果不进行超时设置可能会导致请求响应速度慢，甚至导致请求堆积进而让系统无法再处理请求。重试的次数一般设为 3 次，再多次的重试没有好处，反而会加重服务器压力（部分场景使用失败重试机制会不太适合）。# 熔断机制超时和重试机制设置之外，熔断机制也是很重要的。 熔断机制说的是系统自动收集所依赖服务的资源使用情况和性能指标，当所依赖的服务恶化或者调用失败次数达到某个阈值的时候就迅速失败，让当前系统立即切换依赖其他备用服务。 比较常用的流量控制和熔断降级框架是 Netflix 的 Hystrix 和 alibaba 的 Sentinel。# 异步调用异步调用的话我们不需要关心最后的结果，这样我们就可以用户请求完成之后就立即返回结果，具体处理我们可以后续再做，秒杀场景用这个还是蛮多的。但是，使用异步之后我们可能需要 适当修改业务流程进行配合，比如用户在提交订单之后，不能立即返回用户订单提交成功，需要在消息队列的订单消费者进程真正处理完该订单之后，甚至出库后，再通过电子邮件或短信通知用户订单成功。除了可以在程序中实现异步之外，我们常常还使用消息队列，消息队列可以通过异步处理提高系统性能（削峰、减少响应所需时间）并且可以降低系统耦合性。# 使用缓存如果我们的系统属于并发量比较高的话，如果我们单纯使用数据库的话，当大量请求直接落到数据库可能数据库就会直接挂掉。使用缓存缓存热点数据，因为缓存存储在内存中，所以速度相当地快！# 其他核心应用和服务优先使用更好的硬件监控系统资源使用情况增加报警设置。注意备份，必要时候回滚。灰度发布： 将服务器集群分成若干部分，每天只发布一部分机器，观察运行稳定没有故障，第二天继续发布一部分机器，持续几天才把整个集群全部发布完毕，期间如果发现问题，只需要回滚已发布的一部分服务器即可定期检查/更换硬件： 如果不是购买的云服务的话，定期还是需要对硬件进行一波检查的，对于一些需要更换或者升级的硬件，要及时更换或者升级。…..</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 高可用 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 高可用 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>JVM包含哪几部分</title>
+      <link href="/2023/05/14/13/"/>
+      <url>/2023/05/14/13/</url>
+      
+        <content type="html"><![CDATA[<p>JVM 主要由四大部分组成：ClassLoader（类加载器），Runtime Data Area（运行时数据区，内存分区），Execution Engine（执行引擎），Native Interface（本地库接口），下图可以大致描述 JVM 的结构。</p><p><a href="https://uploadfiles.nowcoder.com/images/20220224/4107856_1645690687338/9602C6323C6B86C4EDA164DB052D8420">https://uploadfiles.nowcoder.com/images/20220224/4107856_1645690687338/9602C6323C6B86C4EDA164DB052D8420</a></p><p>JVM 是执行 Java 程序的虚拟计算机系统，那我们来看看执行过程：首先需要准备好编译好的 Java 字节码文件（即class文件），计算机要运行程序需要先通过一定方式（类加载器）将 class 文件加载到内存中（运行时数据区），但是字节码文件是JVM定义的一套指令集规范，并不能直接交给底层操作系统去执行，因此需要特定的命令解释器（执行引擎）将字节码翻译成特定的操作系统指令集交给 CPU 去执行，这个过程中会需要调用到一些不同语言为 Java 提供的接口（例如驱动、地图制作等），这就用到了本地 Native 接口（本地库接口）。</p><p>ClassLoader：负责加载字节码文件即 class 文件，class 文件在文件开头有特定的文件标示，并且 ClassLoader 只负责class 文件的加载，至于它是否可以运行，则由 Execution Engine 决定。</p><p>Runtime Data Area：是存放数据的，分为五部分：Stack（虚拟机栈），Heap（堆），Method Area（方法区），PC Register（程序计数器），Native Method Stack（本地方法栈）。几乎所有的关于 Java 内存方面的问题，都是集中在这块。</p><p>Execution Engine：执行引擎，也叫 Interpreter。Class 文件被加载后，会把指令和数据信息放入内存中，Execution Engine 则负责把这些命令解释给操作系统，即将 JVM 指令集翻译为操作系统指令集。</p><p>Native Interface：负责调用本地接口的。他的作用是调用不同语言的接口给 JAVA 用，他会在 Native Method Stack 中记录对应的本地方法，然后调用该方法时就通过 Execution Engine 加载对应的本地 lib。原本多用于一些专业领域，如JAVA驱动，地图制作引擎等，现在关于这种本地方法接口的调用已经被类似于Socket通信，WebService等方式取代。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> JVM </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> JVM </tag>
             
         </tags>
       
