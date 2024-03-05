@@ -1,2 +1,2 @@
 # 演示地址
-https://blog.bestxq.live
+https://xq182.github.io/blog

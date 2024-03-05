@@ -1,0 +1,318 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>快手 | blog</title><meta name="author" content="xq182"><meta name="copyright" content="xq182"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="redis锁mysql 数据800gb，日志300gb es10个索引，每个索引120gb redis 6主6从，3gb 自定义注解 @Target(&amp;#123; ElementType.TYPE, ElementType.METHOD &amp;#125;) @Retention(RetentionPolicy.RUNTIME) public @interface RefundRedisLock &amp;#1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="快手">
+<meta property="og:url" content="http://xq182.github.io/blog/2023/08/14/26/index.html">
+<meta property="og:site_name" content="blog">
+<meta property="og:description" content="redis锁mysql 数据800gb，日志300gb es10个索引，每个索引120gb redis 6主6从，3gb 自定义注解 @Target(&amp;#123; ElementType.TYPE, ElementType.METHOD &amp;#125;) @Retention(RetentionPolicy.RUNTIME) public @interface RefundRedisLock &amp;#1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-14T08:17:05.465Z">
+<meta property="article:modified_time" content="2023-09-12T14:53:27.492Z">
+<meta property="article:author" content="xq182">
+<meta property="article:tag" content="快手">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="http://xq182.github.io/blog/2023/08/14/26/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: {"limitDay":365,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-right"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '快手',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-12 22:53:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const now = new Date()
+          const hour = now.getHours()
+          const isNight = hour <= 6 || hour >= 18
+          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="//at.alicdn.com/t/c/font_3830541_ryetrb167vp.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/css/runtime/runtime.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/blog/">blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">快手</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-14T08:17:05.465Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-09-12T14:53:27.492Z" title="更新于 2023-09-12 22:53:27">2023-09-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/%E5%BF%AB%E6%89%8B/">快手</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="快手"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="redis锁"><a href="#redis锁" class="headerlink" title="redis锁"></a>redis锁</h2><p>mysql 数据800gb，日志300gb</p>
+<p>es10个索引，每个索引120gb</p>
+<p>redis 6主6从，3gb</p>
+<p>自定义注解</p>
+<pre><code>@Target(&#123; ElementType.TYPE, ElementType.METHOD &#125;)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RefundRedisLock &#123;
+String key(); // 示例: orderId, param.orderId ()
+String keyPrefix() default StringUtils.EMPTY; // 示例：order.state (biz prefix string)
+long limitWaitTimeSeconds() default 3; // 示例 3秒有限等待
+long expireSeconds() default 30; // 示例：30秒自动释放&#125;
+</code></pre><p>@Pointcut(“@annotation(com.kuaishou.kwaishop.refund.annotation.RefundRedisLock)”)切入点<br>public void pointcut() {}</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Around(&quot;pointcut()&quot;)</span><br><span class="line">public Object doSurround(ProceedingJoinPoint proceedingJoinPoint执行点) throws Throwable &#123;MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();</span><br><span class="line">RefundRedisLock refundRedisLock = methodSignature.getMethod().getAnnotation(RefundRedisLock.class);</span><br><span class="line"> locked = refundRedisLockService.tryLock(lockKey, limitWaitTimeSeconds, expireSeconds);</span><br><span class="line"> 判断当前线程是否已经获得分布式锁,重入次数+1</span><br><span class="line"> retry &lt; maxRetryTimes</span><br><span class="line"> 计算重试获取锁的睡眠等待时间,Min(锁最大释放时间,默认重试间隔时间,获取锁的最大等待时间)</span><br><span class="line"> key-refund.application.service.lock.2319100000001864(orderid)</span><br><span class="line"> value-ip+threadname+id+时间</span><br><span class="line"> if (System.currentTimeMillis() &gt; startTimeMillis + limitWaitTimeSeconds * 1000)</span><br><span class="line"> break;</span><br><span class="line"> return proceedingJoinPoint.proceed();</span><br><span class="line">  if (locked) &#123;</span><br><span class="line">                boolean unlocked = refundRedisLockService.unLock(lockKey);</span><br><span class="line">               判断当前线程是否已经获得分布式锁,重入次数-1</span><br><span class="line">               StringUtils.isEmpty(currentLockValue)</span><br><span class="line">               return false;</span><br><span class="line">               校验目前锁的值是否当前线程持有</span><br><span class="line">               &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>机器断电，锁没释放，造成死锁</p>
+<p>加过期时间，不是和设置锁是原子性的</p>
+<p>业务执行时间过长，锁自动过期了,释放掉了别人的锁</p>
+<p>设置uuid,删除锁的时候判断下是不是自己的</p>
+<p>判断和删除锁要设置成原子性</p>
+<p>最终用redission框架,超时时间默认是30秒,看门狗每隔10s就会进行一次续期,把锁重置成30秒</p>
+<p>加锁其实是通过一段 lua 脚本实现的，这里 <code>KEYS[1]</code> 代表的是你加锁的 key，比如你自己设置了加锁的那个锁 key 就是 “myLock， <code>ARGV[1]</code> 代表的是锁 key 的默认生存时间，默认 30 秒。<code>ARGV[2]</code> 代表的是加锁的客户端的 ID，类似于下面这样：285475da-9152-4c83-822a-67ee2f116a79:52。至于最后面的一个 1 是为了后面可重入做的计数统计，此时，如果客户端 2 来尝试加锁，会如何呢？首先，第一个 if 判断会执行 <code>exists myLock</code>，发现 myLock 这个锁 key 已经存在了。接着第二个 if 判断，判断一下，myLock 锁 key 的 hash 数据结构中，是否包含客户端 2 的 ID，这里明显不是，因为那里包含的是客户端 1 的 ID。所以，客户端 2 会执行：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return redis.call(&#x27;pttl&#x27;, KEYS[1]);</span><br></pre></td></tr></table></figure>
+<p>返回的一个数字，这个数字代表了 myLock 这个锁 key 的剩余生存时间。返回 null 则说明加锁成功。</p>
+<p>Watch Dog 机制其实就是一个后台定时任务线程，获取锁成功之后，会将持有锁的线程放入到一个 <code>RedissonLock.EXPIRATION_RENEWAL_MAP</code>里面，然后每隔 10 秒 <code>（internalLockLeaseTime / 3）</code> 检查一下，如果客户端 1 还持有锁 key（判断客户端是否还持有 key，其实就是遍历 <code>EXPIRATION_RENEWAL_MAP</code> 里面线程 id 然后根据线程 id 去 Redis 中查，如果存在就会延长 key 的时间），那么就会不断的延长锁 key 的生存时间</p>
+<p>DynamicRateLimiter 对 RateLimiter 封装了一层，底层实现还是 RateLimiter。与 Semaphore 不同的是：Semaphore 限制并发访问的次数，而 RateLimiter 限制并发访问速率。</p>
+<h2 id="RateLimiter"><a href="#RateLimiter" class="headerlink" title="RateLimiter"></a>RateLimiter</h2><p>参考了令牌桶算法。<strong>漏桶算法</strong>的实现往往依赖于队列，请求到达如果队列未满则直接放入队列，然后有一个处理器按照固定频率从队列头取出请求进行处理。如果请求量大，则会导致队列满，那么新来的请求就会被抛弃。<strong>令牌桶算法</strong>则是一个存放固定容量令牌的桶，按照固定速率往桶里添加令牌。桶中存放的令牌数有最大上限，超出之后就被丢弃或者拒绝。当流量或者网络请求到达时，每个请求都要获取一个令牌，如果能够获取到，则直接处理，并且令牌桶删除一个令牌。如果获取不到，该请求就要被限流，要么直接丢弃，要么在缓冲区等待。</p>
+<p>令牌桶限制的是平均流入速率，允许突发请求，只要有令牌就可以处理，支持一次拿多个令牌；漏桶限制的是常量流出速率，即流出速率是一个固定常量值，从而平滑突发流入速率</p>
+<h2 id="ddd"><a href="#ddd" class="headerlink" title="ddd"></a>ddd</h2><p>代码角度：</p>
+<ul>
+<li><p>瘦实体模型：只起到数据类的作用，业务逻辑散落到service，可维护性越来越差；</p>
+</li>
+<li><p>面向数据库表编程，而非模型编程；</p>
+</li>
+<li><p>实体类之间的关系是复杂的网状结构，成为大泥球，牵一发而动全身，导致不敢轻易改代码；</p>
+</li>
+<li><p>service类承接的所有的业务逻辑，越来越臃肿，很容易出现几千行的service类；</p>
+</li>
+</ul>
+<p>分为限界和上下文。限界就是领域的边界，而上下文则是语义环境。 通过领域的限界上下文，我们就可以在统一的领域边界内用统一的语言 进行交流，引入限界上下文（Bounded Context）对问题域进行合理的分 解，识别出核心领域（Core Domain）与子领域（SubDomain），并确定领域的边界以及它 们之间的关系，维持模型的完整性。 2.架构方面：通过分层架构来隔离关注点，尤其是将领域实现独立出来，能够更利于领域 模型的单一性与稳定性</p>
+<ul>
+<li>精细化运营    </li>
+<li>提供可复用的原子能力，后续的换货、投诉等可以复用这些能力，无需重复开发</li>
+</ul>
+<p><strong>资金域</strong></p>
+<p>  <strong>资金域是为了解决在逆向交易过程中交易资金处理。</strong>其核心的作用是收敛各种退资金、退营销的链路以及业务规则。避免资金的处理细节逻辑耦合进入基础退换货逻辑。同时沉淀基础的中台交易逆向资金基础能力，为各种极致保障售后权益提供丰富的资金能力</p>
+<p> <strong>协商（域）</strong></p>
+<p> 这里特指当买家发起某项售后服务后（比如申请退款），需要卖家同意买家的申请，才能退款给买家，如果中间卖家对申请有疑问，可以拒绝买家的申请，或者提起平台介入，进入到买家家，平台三方的纠纷流程，最终完整整个售后服务的过程。</p>
+<p> <strong>诉求（域）</strong></p>
+<p> 指代售后过程中买卖家想要达成的内容，比如针对退款，买家想不退货并且拿回全额货款（100元）。但卖家可以建议是退货才拿起全部退款，或者是不退货，只退部分货款， 沉淀在电商服务中消费者的诉求点，助力业务识别售后过程中消费者的问题点是什么，问题的解决是否顺畅，从而能够在细分场景帮助业务去优化快手电商的整体服务体验</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="C:\Users\熊强\AppData\Roaming\Typora\typora-user-images\image-20230821230613406.png" alt="image-20230821230613406" style="zoom: 67%;" /></p>
+<p><strong>1. 用户接口层（Controller层）</strong></p>
+<p>用户接口层负责向用户显示信息和解释用户指令。</p>
+<p><strong>2. 应用层（Service层）</strong></p>
+<p>应用层是很薄的一层，理论上不应该由业务规则或逻辑，主要面向用例和流程相关的操作。也可以完成</p>
+<ul>
+<li>编排多个聚合服务和领域对象完成业务操作；</li>
+<li>调用其他微服务的应用服务，完成微服务之间服务的组合和编排；</li>
+</ul>
+<p>应用服务是在应用层的，它负责服务的组合、编排和转发，负责处理业务用例的执行顺序以及结果的拼装，以粗粒度的服务通过 API 网关向前端发布。还有，应用服务还可以进行安全认证、权限校验、事务控制、发送或订阅领域事件等。</p>
+<p><strong>3. 领域层（domain层）</strong></p>
+<p>领域层的作用是实现企业核心业务逻辑，通过各种校验手段保证业务的正确性。领域层主要体现领域模型的业务能力，它用来表达业务概念，业务状态和业务规则；</p>
+<p>领域层包含聚合根，实体，值对象。领域服务等领域模型中的领域对象；</p>
+<p>领域模型的业务逻辑主要是由实体和领域服务来实现的：</p>
+<ul>
+<li>实体会采用充血模型来实现所有与之相关的业务功能。</li>
+<li>实体和领域对象在实现业务逻辑上是同级的，当领域中的某些功能，单一实体（或者值对象）不能实现时，领域服务就会出马他可以组合聚合内的多个实体（或者值对象），实现复杂的业务逻辑。</li>
+</ul>
+<p><strong>4. 基础层（Repository）</strong></p>
+<p>基础层是贯穿所有层的，它的作用就是为其它各层提供通用的技术和基础服务，包括第三方工具、驱动、消息中间件、网关、文件、缓存以及数据库等。比较常见的功能还是提供数据库持久化。</p>
+<p>基础层包含基础服务，它采用依赖倒置设计，封装基础资源服务，实现应用层、领域层与基础层的解耦，降低外部资源变化对应用的影响。</p>
+<p>在传统架构设计中，由于上层应用对数据库的强耦合，很多公司在架构演进中最担忧的可能就是换数据库了，因为一旦更换数据库，就可能需要重写大部分的代码，这对应用来说是致命的。那采用依赖倒置的设计以后，应用层就可以通过解耦来保持独立的核心业务逻辑。当数据库变更时，我们只需要更换数据库基础服务就可以了，这样就将资源变更对应用的影响降到了最低。</p>
+<p>public abstract class AbstractEvent<Context extends IContext> {</p>
+<p>/**</p>
+<ul>
+<li>执行<br>*/<br>@Override<br>public void doAction(Context context) {<br>// 参数/幂等校验<br>boolean validation = validation(context);<br>if (!validation) {<br>return;<br>}<br>//参数构建<br>buildParam(context);<br>// 执行业务逻辑<br>execute(context);<br>afterExecute(context);<br>}<br>}<br>public class QueryFundEvent extends AbstractEvent<QueryFundContext> {</li>
+</ul>
+<p>@Override<br>public void doAction(QueryFundContext context) {<br>super.doAction(context);<br>}<br>//重写三个方法<br>}</p>
+<p> 策略模式的核心思想是对算法进行封装，委派给不同对象来管理。这样，我们就可以定义一系列算法，将每个算法 封装到具有公共接口的一系列具体策略类中，从而使它们可以灵活替换，并让算法可以在不影响到客户端的情况下发生变化。同时，策略模式仅仅封装算法(包括添加、删除)，但其并不决定在何时使用何种算法，算法的选择由客户端来决定</p>
+<ul>
+<li><p>具体策略类之间可自由切换，由于具体策略类都实现同一个抽象策略接口，所以它们之间可以自由切换。</p>
+</li>
+<li><p>符合“开闭原则”，扩展增加一个新策略时只需添加一个具体策略类即可，不需要改变原有的代码。</p>
+</li>
+<li><p>避免使用多重条件选择语句(if else)，充分体现面向对象设计思想</p>
+<p>缺点</p>
+</li>
+<li><p>客户端必须知道所有的具体策略类，并理解不同具体策略的区别、自行决定使用哪一个策略类。（这一点可以通过本文介绍的方案解决）</p>
+</li>
+<li>策略模式将产生很多具体策略类，在一定程度上增加了系统中类的个数</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog">xq182</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog/2023/08/14/26/">http://xq182.github.io/blog/2023/08/14/26/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xq182.github.io/blog" target="_blank">blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/%E5%BF%AB%E6%89%8B/">快手</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/blog/2023/08/14/9/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">spring容器的创建过程</div></div></a></div><div class="next-post pull-right"><a href="/blog/2023/08/14/1/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Spring三级缓存</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">xq182</div><div class="author-info__description">xq zone</div></div><div class="card-info-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xq182"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xq182" target="_blank" title="Github"><i class="icon-github"></i></a><a class="social-icon" href="tencent://Message/?Uin=2895837015&amp;amp;websiteName=local.edu.com:8888=&amp;amp;Menu=yes" target="_blank" title="QQ"><i class="icon-QQ"></i></a><a class="social-icon" href="http://img.bestxq.live//7ebbb43f1393ccddc981b2baea3dde4.jpg" target="_blank" title="WX"><i class="icon-weixin"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is xq zone</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#redis%E9%94%81"><span class="toc-number">1.</span> <span class="toc-text">redis锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RateLimiter"><span class="toc-number">2.</span> <span class="toc-text">RateLimiter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ddd"><span class="toc-number">3.</span> <span class="toc-text">ddd</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/09/06/17%20/" title="无题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/blog/2023/09/06/17%20/" title="无题">无题</a><time datetime="2023-09-06T05:06:12.038Z" title="发表于 2023-09-06 13:06:12">2023-09-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/26/29/" title="oom线上问题排查"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="oom线上问题排查"/></a><div class="content"><a class="title" href="/blog/2023/08/26/29/" title="oom线上问题排查">oom线上问题排查</a><time datetime="2023-08-26T12:05:03.428Z" title="发表于 2023-08-26 20:05:03">2023-08-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/25/28/" title="redis集群key"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="redis集群key"/></a><div class="content"><a class="title" href="/blog/2023/08/25/28/" title="redis集群key">redis集群key</a><time datetime="2023-08-24T16:21:03.076Z" title="发表于 2023-08-25 00:21:03">2023-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/9/" title="spring容器的创建过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="spring容器的创建过程"/></a><div class="content"><a class="title" href="/blog/2023/08/14/9/" title="spring容器的创建过程">spring容器的创建过程</a><time datetime="2023-08-14T08:17:05.467Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/26/" title="快手"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="快手"/></a><div class="content"><a class="title" href="/blog/2023/08/14/26/" title="快手">快手</a><time datetime="2023-08-14T08:17:05.465Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By xq182</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/blog/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/js/light.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script  defer src="/js/visit.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --> <script data-pjax>if(document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="width:100%;height: auto"><div id="catalog_magnet"><a class="magnet_link_more"  href="http://xq182.github.io/blog/categories" style="flex:1;text-align: center;margin-bottom: 10px;">查看更多...</a></div></div>';
+    console.log('已挂载magnet')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script><style>#catalog_magnet{flex-wrap: wrap;display: flex;width:100%;justify-content:space-between;padding: 10px 10px 0 10px;align-content: flex-start;}.magnet_item{flex-basis: calc(50% - 5px);background: #f2f2f2;margin-bottom: 10px;border-radius: 8px;transition: all 0.2s ease-in-out;}.magnet_item:hover{background: #b30070}.magnet_link_more{color:#555}.magnet_link{color:black}.magnet_link:hover{color:white}@media screen and (max-width: 600px) {.magnet_item {flex-basis: 100%;}}.magnet_link_context{display:flex;padding: 10px;font-size:16px;transition: all 0.2s ease-in-out;}.magnet_link_context:hover{padding: 10px 20px;}</style>
+    <style></style><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = 'b16a1fa0e63c46a4b8f28abfb06ae3fe';
+  var gaud_map_key = 'e2b04289e870b005374ee030148d64fd&s=rsv3';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '113.34532,23.15624';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/blog/js/runtime.min.js"></script><!-- hexo injector body_end end --><script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/blog/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body></html>

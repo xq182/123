@@ -1,0 +1,350 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>spring容器的创建过程 | blog</title><meta name="author" content="xq182"><meta name="copyright" content="xq182"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="@SpringBootApplication等同于@SpringBootConfiguration@EnableAutoConfiguration   @Import(AutoConfigurationImportSelector.class)@ComponentScan(“com.atguigu.boot”)   1234567public ApplicationContext(annotate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring容器的创建过程">
+<meta property="og:url" content="http://xq182.github.io/blog/2023/08/14/9/index.html">
+<meta property="og:site_name" content="blog">
+<meta property="og:description" content="@SpringBootApplication等同于@SpringBootConfiguration@EnableAutoConfiguration   @Import(AutoConfigurationImportSelector.class)@ComponentScan(“com.atguigu.boot”)   1234567public ApplicationContext(annotate">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-14T08:17:05.467Z">
+<meta property="article:modified_time" content="2023-09-03T09:17:16.439Z">
+<meta property="article:author" content="xq182">
+<meta property="article:tag" content="spring">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="http://xq182.github.io/blog/2023/08/14/9/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: {"limitDay":365,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-right"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'spring容器的创建过程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-03 17:17:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const now = new Date()
+          const hour = now.getHours()
+          const isNight = hour <= 6 || hour >= 18
+          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="//at.alicdn.com/t/c/font_3830541_ryetrb167vp.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/css/runtime/runtime.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/blog/">blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">spring容器的创建过程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-14T08:17:05.467Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-09-03T09:17:16.439Z" title="更新于 2023-09-03 17:17:16">2023-09-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/spring/">spring</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="spring容器的创建过程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>@SpringBootApplication<br>等同于<br>@SpringBootConfiguration<br>@EnableAutoConfiguration   @Import(AutoConfigurationImportSelector.class)<br>@ComponentScan(“com.atguigu.boot”)  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public ApplicationContext(annotatedClasses)</span><br><span class="line">&#123;</span><br><span class="line">this();</span><br><span class="line">//注册配置类， 因为配置需要解析，一般不需自己扫描</span><br><span class="line">register(annotatedClasses) ;</span><br><span class="line">refresh();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Spring容器的refresh()【创建刷新】;</p>
+<p>1、prepareRefresh()刷新前的预处理;</p>
+<p>  1）、initPropertySources()初始化一些属性设置;子类自定义个性化的属性设置方法；</p>
+<p>  2）、getEnvironment().validateRequiredProperties();检验属性的合法等</p>
+<p>  3）、earlyApplicationEvents= new LinkedHashSet<ApplicationEvent>();保存容器中的一些早期的事件；</p>
+<p>2、obtainFreshBeanFactory();获取BeanFactory；</p>
+<p>  1）、refreshBeanFactory();刷新【创建】BeanFactory；</p>
+<p>​      创建了一个this.beanFactory = new DefaultListableBeanFactory();</p>
+<p>​      设置id；</p>
+<p>  2）、getBeanFactory();返回刚才GenericApplicationContext创建的BeanFactory对象；</p>
+<p>  3）、将创建的BeanFactory【DefaultListableBeanFactory】返回；</p>
+<p>3、prepareBeanFactory(beanFactory);BeanFactory的预准备工作（BeanFactory进行一些设置）；</p>
+<p>  1）、设置BeanFactory的类加载器、支持表达式解析器…</p>
+<p>  2）、添加部分BeanPostProcessor【ApplicationContextAwareProcessor】</p>
+<p>  3）、设置忽略的自动装配的接口EnvironmentAware、EmbeddedValueResolverAware、xxx；</p>
+<p>  4）、注册可以解析的自动装配；我们能直接在任何组件中自动注入：</p>
+<p>​      BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext</p>
+<p>  5）、添加BeanPostProcessor【ApplicationListenerDetector】</p>
+<p>  6）、添加编译时的AspectJ；</p>
+<p>  7）、给BeanFactory中注册一些能用的组件；</p>
+<p>​    environment【ConfigurableEnvironment】、</p>
+<p>​    systemProperties【Map<String, Object>】、</p>
+<p>​    systemEnvironment【Map<String, Object>】</p>
+<p>4、postProcessBeanFactory(beanFactory);BeanFactory准备工作完成后进行的后置处理工作；</p>
+<p>  1）、子类通过重写这个方法来在BeanFactory创建并预准备完成以后做进一步的设置</p>
+<p>======================以上是BeanFactory的创建及预准备工作==================================</p>
+<p>5、invokeBeanFactoryPostProcessors(beanFactory);执行BeanFactoryPostProcessor的方法；</p>
+<p>  BeanFactoryPostProcessor：BeanFactory的后置处理器。在BeanFactory标准初始化之后执行的；</p>
+<p>  两个接口：BeanFactoryPostProcessor、BeanDefinitionRegistryPostProcessor</p>
+<p>  1）、执行BeanFactoryPostProcessor的方法；</p>
+<p>​    先执行BeanDefinitionRegistryPostProcessor</p>
+<p>​    1）、获取所有的BeanDefinitionRegistryPostProcessor；</p>
+<p>​    2）、看先执行实现了PriorityOrdered优先级接口的BeanDefinitionRegistryPostProcessor、</p>
+<p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p>
+<p>​    3）、在执行实现了Ordered顺序接口的BeanDefinitionRegistryPostProcessor；</p>
+<p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p>
+<p>​    4）、最后执行没有实现任何优先级或者是顺序接口的BeanDefinitionRegistryPostProcessors；</p>
+<p>​      postProcessor.postProcessBeanDefinitionRegistry(registry)</p>
+<p>​    再执行BeanFactoryPostProcessor的方法</p>
+<p>​    1）、获取所有的BeanFactoryPostProcessor</p>
+<p>​    2）、看先执行实现了PriorityOrdered优先级接口的BeanFactoryPostProcessor、</p>
+<p>​      postProcessor.postProcessBeanFactory()</p>
+<p>​    3）、在执行实现了Ordered顺序接口的BeanFactoryPostProcessor；</p>
+<p>​      postProcessor.postProcessBeanFactory()</p>
+<p>​    4）、最后执行没有实现任何优先级或者是顺序接口的BeanFactoryPostProcessor；</p>
+<p>​      postProcessor.postProcessBeanFactory()</p>
+<p>6、registerBeanPostProcessors(beanFactory);注册BeanPostProcessor（Bean的后置处理器）【 intercept bean creation】</p>
+<p>​    不同接口类型的BeanPostProcessor；在Bean创建前后的执行时机是不一样的</p>
+<p>​    BeanPostProcessor、</p>
+<p>​    DestructionAwareBeanPostProcessor、</p>
+<p>​    InstantiationAwareBeanPostProcessor、</p>
+<p>​    SmartInstantiationAwareBeanPostProcessor、</p>
+<p>​    MergedBeanDefinitionPostProcessor【internalPostProcessors】、</p>
+<p>​    </p>
+<p>​    1）、获取所有的 BeanPostProcessor;后置处理器都默认可以通过PriorityOrdered、Ordered接口来执行优先级</p>
+<p>7、initMessageSource();初始化MessageSource组件（做国际化功能；消息绑定，消息解析）；</p>
+<p>​    1）、获取BeanFactory</p>
+<p>​    2）、看容器中是否有id为messageSource的，类型是MessageSource的组件</p>
+<p>​      如果有赋值给messageSource，如果没有自己创建一个DelegatingMessageSource；</p>
+<p>​        MessageSource：取出国际化配置文件中的某个key的值；能按照区域信息获取；</p>
+<p>​    3）、把创建好的MessageSource注册在容器中，以后获取国际化配置文件的值的时候，可以自动注入MessageSource；</p>
+<p>​      beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);   </p>
+<p>​      MessageSource.getMessage(String code, Object[] args, String defaultMessage, Locale locale);</p>
+<p>8、initApplicationEventMulticaster();初始化事件派发器；</p>
+<p>​    1）、获取BeanFactory</p>
+<p>​    2）、从BeanFactory中获取applicationEventMulticaster的ApplicationEventMulticaster；</p>
+<p>​    3）、如果上一步没有配置；创建一个SimpleApplicationEventMulticaster</p>
+<p>​    4）、将创建的ApplicationEventMulticaster添加到BeanFactory中，以后其他组件直接自动注入</p>
+<p>9、onRefresh();留给子容器（子类）</p>
+<p>​    1、子类重写这个方法，在容器刷新的时候可以自定义逻辑；</p>
+<p>10、registerListeners();给容器中将所有项目里面的ApplicationListener注册进来；</p>
+<p>​    1、从容器中拿到所有的ApplicationListener</p>
+<p>​    2、将每个监听器添加到事件派发器中；</p>
+<p>​      getApplicationEventMulticaster().addApplicationListenerBean(listenerBeanName);</p>
+<p>​    3、派发之前步骤产生的事件；</p>
+<p>11、finishBeanFactoryInitialization(beanFactory);初始化所有剩下的单实例bean；</p>
+<p>  1、beanFactory.preInstantiateSingletons();初始化后剩下的单实例bean</p>
+<p>​    1）、获取容器中的所有Bean，依次进行初始化和创建对象</p>
+<p>​    2）、获取Bean的定义信息；RootBeanDefinition</p>
+<p>​    3）、Bean不是抽象的，是单实例的，是懒加载；</p>
+<p>​      1）、判断是否是FactoryBean；是否是实现FactoryBean接口的Bean；</p>
+<p>​      2）、不是工厂Bean。利用getBean(beanName);创建对象</p>
+<p>​        0、getBean(beanName)； ioc.getBean();</p>
+<p>​        1、doGetBean(name, null, null, false);</p>
+<p>​        2、先获取缓存中保存的单实例Bean。如果能获取到说明这个Bean之前被创建过（所有创建过的单实例Bean都会被缓存起来）</p>
+<p>​          从private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(256);获取的</p>
+<p>​        3、缓存中获取不到，开始Bean的创建对象流程；</p>
+<p>​        4、标记当前bean已经被创建</p>
+<p>​        5、获取Bean的定义信息；</p>
+<p>​        6、【获取当前Bean依赖的其他Bean;如果有按照getBean()把依赖的Bean先创建出来；】</p>
+<p>​        7、启动单实例Bean的创建流程；</p>
+<p>​          1）、createBean(beanName, mbd, args);</p>
+<p>​          2）、Object bean = resolveBeforeInstantiation(beanName, mbdToUse);让BeanPostProcessor先拦截返回代理对象；</p>
+<p>​            【InstantiationAwareBeanPostProcessor】：提前执行；</p>
+<p>​            先触发：postProcessBeforeInstantiation()；</p>
+<p>​            如果有返回值：触发postProcessAfterInitialization()；</p>
+<p>​          3）、如果前面的InstantiationAwareBeanPostProcessor没有返回代理对象；调用4）</p>
+<p>​          4）、Object beanInstance = doCreateBean(beanName, mbdToUse, args);创建Bean</p>
+<p>​             1）、【创建Bean实例】；createBeanInstance(beanName, mbd, args);</p>
+<p>​              利用工厂方法或者对象的构造器创建出Bean实例；</p>
+<p>​             加入三级缓存</p>
+<p>​             3）、【Bean属性赋值】populateBean(beanName, mbd, instanceWrapper);</p>
+<p>​            setBeanName</p>
+<p>​        Setbeanclassloader</p>
+<p>​        setBeanFactory</p>
+<p>  <strong>BeanPostProcessor</strong>.postProcessBeforeInitialization</p>
+<p>​           4）、【Bean初始化】initializeBean(beanName, exposedObject, mbd);</p>
+<p>afterPropertiesSet,init</p>
+<p>​      <strong>BeanPostProcessor</strong>.postProcessAfterInitialization</p>
+<p>​         5）、如果单例将创建的Bean添加到缓存中singletonObjects；</p>
+<p>​        ioc容器就是这些Map；很多的Map里面保存了单实例Bean，环境信息。。。。；</p>
+<p>​    5）、注册Bean的销毁方法；</p>
+<p>​    所有Bean都利用getBean创建完成以后；</p>
+<p>​      检查所有的Bean是否是SmartInitializingSingleton接口的；如果是；就执行afterSingletonsInstantiated()；</p>
+<p>12、finishRefresh();完成BeanFactory的初始化创建工作；IOC容器就创建完成；</p>
+<h2 id="Aop源码"><a href="#Aop源码" class="headerlink" title="Aop源码"></a>Aop源码</h2><p>大概分为以下几步：</p>
+<p>spring boot 自动配置AopAutoConfiguration类中带有@EnableAspectJAutoProxy，项目启动即开启对spring AOP的支持，该注解注册了AnnotationAwareAspectJAutoProxyCreator类，该类实现了bean的后置处理器，可以在类创建过程中做一些其他操作</p>
+<p>在bean后置处理器的postProcessBeforeInstantiation方法中，解析切面类，把通知封装成Advisor，并放入缓存advisorsCache中！</p>
+<p>在创建每一个bean时，在bean的后置处理器中的postProcessAfterInitialization方法中，拿到缓存中所有的Advisor，根据切入点PointCut与当前bean做匹配，匹配成功与否决定是否需要创建动态代理！如果匹配到了，则根据实际情况创建动态代理</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog">xq182</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog/2023/08/14/9/">http://xq182.github.io/blog/2023/08/14/9/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xq182.github.io/blog" target="_blank">blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/spring/">spring</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/blog/2023/08/25/28/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">redis集群key</div></div></a></div><div class="next-post pull-right"><a href="/blog/2023/08/14/26/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">快手</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/blog/2023/08/14/1/" title="Spring三级缓存"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-14</div><div class="title">Spring三级缓存</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">xq182</div><div class="author-info__description">xq zone</div></div><div class="card-info-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xq182"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xq182" target="_blank" title="Github"><i class="icon-github"></i></a><a class="social-icon" href="tencent://Message/?Uin=2895837015&amp;amp;websiteName=local.edu.com:8888=&amp;amp;Menu=yes" target="_blank" title="QQ"><i class="icon-QQ"></i></a><a class="social-icon" href="http://img.bestxq.live//7ebbb43f1393ccddc981b2baea3dde4.jpg" target="_blank" title="WX"><i class="icon-weixin"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is xq zone</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Aop%E6%BA%90%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">Aop源码</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/09/06/17%20/" title="无题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/blog/2023/09/06/17%20/" title="无题">无题</a><time datetime="2023-09-06T05:06:12.038Z" title="发表于 2023-09-06 13:06:12">2023-09-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/26/29/" title="oom线上问题排查"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="oom线上问题排查"/></a><div class="content"><a class="title" href="/blog/2023/08/26/29/" title="oom线上问题排查">oom线上问题排查</a><time datetime="2023-08-26T12:05:03.428Z" title="发表于 2023-08-26 20:05:03">2023-08-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/25/28/" title="redis集群key"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="redis集群key"/></a><div class="content"><a class="title" href="/blog/2023/08/25/28/" title="redis集群key">redis集群key</a><time datetime="2023-08-24T16:21:03.076Z" title="发表于 2023-08-25 00:21:03">2023-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/9/" title="spring容器的创建过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="spring容器的创建过程"/></a><div class="content"><a class="title" href="/blog/2023/08/14/9/" title="spring容器的创建过程">spring容器的创建过程</a><time datetime="2023-08-14T08:17:05.467Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/26/" title="快手"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="快手"/></a><div class="content"><a class="title" href="/blog/2023/08/14/26/" title="快手">快手</a><time datetime="2023-08-14T08:17:05.465Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By xq182</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/blog/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/js/light.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script  defer src="/js/visit.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --> <script data-pjax>if(document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="width:100%;height: auto"><div id="catalog_magnet"><a class="magnet_link_more"  href="http://xq182.github.io/blog/categories" style="flex:1;text-align: center;margin-bottom: 10px;">查看更多...</a></div></div>';
+    console.log('已挂载magnet')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script><style>#catalog_magnet{flex-wrap: wrap;display: flex;width:100%;justify-content:space-between;padding: 10px 10px 0 10px;align-content: flex-start;}.magnet_item{flex-basis: calc(50% - 5px);background: #f2f2f2;margin-bottom: 10px;border-radius: 8px;transition: all 0.2s ease-in-out;}.magnet_item:hover{background: #b30070}.magnet_link_more{color:#555}.magnet_link{color:black}.magnet_link:hover{color:white}@media screen and (max-width: 600px) {.magnet_item {flex-basis: 100%;}}.magnet_link_context{display:flex;padding: 10px;font-size:16px;transition: all 0.2s ease-in-out;}.magnet_link_context:hover{padding: 10px 20px;}</style>
+    <style></style><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = 'b16a1fa0e63c46a4b8f28abfb06ae3fe';
+  var gaud_map_key = 'e2b04289e870b005374ee030148d64fd&s=rsv3';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '113.34532,23.15624';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/blog/js/runtime.min.js"></script><!-- hexo injector body_end end --><script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/blog/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body></html>

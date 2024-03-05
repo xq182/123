@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>redis集群key | blog</title><meta name="author" content="xq182"><meta name="copyright" content="xq182"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="发现问题7月29号， 晚上23:30我们收到kcc报警，我们有个redis集群liveStreamStats内存使用率达到了90%。 发现有两个redis实例redis使用率到了90%，但是其他的实例内存并没有这么高。 问题止损    因为当时7月29号成龙大哥在开播，并且开播时间是19:50，和监控上内存上涨的时间点吻合，我们怀疑和成龙大哥开播在线人数比较多导致的。当时紧急联系kcc同学垂直扩容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis集群key">
+<meta property="og:url" content="http://xq182.github.io/blog/2023/08/25/28/index.html">
+<meta property="og:site_name" content="blog">
+<meta property="og:description" content="发现问题7月29号， 晚上23:30我们收到kcc报警，我们有个redis集群liveStreamStats内存使用率达到了90%。 发现有两个redis实例redis使用率到了90%，但是其他的实例内存并没有这么高。 问题止损    因为当时7月29号成龙大哥在开播，并且开播时间是19:50，和监控上内存上涨的时间点吻合，我们怀疑和成龙大哥开播在线人数比较多导致的。当时紧急联系kcc同学垂直扩容">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-24T16:21:03.076Z">
+<meta property="article:modified_time" content="2023-08-27T15:08:05.796Z">
+<meta property="article:author" content="xq182">
+<meta property="article:tag" content="redis集群key">
+<meta name="twitter:card" content="summary"><link rel="shortcut icon" href="/blog/img/favicon.png"><link rel="canonical" href="http://xq182.github.io/blog/2023/08/25/28/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><meta/><link rel="stylesheet" href="/blog/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/blog/',
+  algolia: undefined,
+  localSearch: {"path":"/blog/search.xml","preload":true,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: {"limitDay":365,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-right"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'redis集群key',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-08-27 23:08:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const now = new Date()
+          const hour = now.getHours()
+          const isNight = hour <= 6 || hour >= 18
+          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="//at.alicdn.com/t/c/font_3830541_ryetrb167vp.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://npm.elemecdn.com/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/css/runtime/runtime.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/blog/">blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/blog/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/blog/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/blog/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/blog/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 列表</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/blog/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/blog/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/blog/comments/"><i class="fa-fw fas fa-envelope-open"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/blog/link/"><i class="fa-fw fas fa-link"></i><span> 友联</span></a></div><div class="menus_item"><a class="site-page" href="/blog/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">redis集群key</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-08-24T16:21:03.076Z" title="发表于 2023-08-25 00:21:03">2023-08-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-08-27T15:08:05.796Z" title="更新于 2023-08-27 23:08:05">2023-08-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/blog/categories/redis%E9%9B%86%E7%BE%A4key/">redis集群key</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="redis集群key"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h1><p>7月29号， 晚上23:30我们收到kcc报警，我们有个redis集群liveStreamStats内存使用率达到了90%。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="C:\Users\熊强\Pictures\学习资料\e15b2f6540541d19a980b5d1c949ad6c.png" alt="file" style="zoom:33%;" /><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://static.yximgs.com/udata/pkg/EE-KSTACK/46b68a66ffdbc7150dd7f0938609c112.png" alt="file"></p>
+<p>发现有两个redis实例redis使用率到了90%，但是其他的实例内存并没有这么高。</p>
+<h1 id="问题止损"><a href="#问题止损" class="headerlink" title="问题止损"></a>问题止损</h1><p>    因为当时7月29号成龙大哥在开播，并且开播时间是19:50，和监控上内存上涨的时间点吻合，我们怀疑和成龙大哥开播在线人数比较多导致的。当时紧急联系kcc同学垂直扩容了这两台实例。</p>
+<h1 id="问题初步定位"><a href="#问题初步定位" class="headerlink" title="问题初步定位"></a>问题初步定位</h1><p>    当时kcc同学通过解析rdb数据发现以wd_11285866346:（11285866346是成龙大哥的liveStreamId)为前缀的key在这两台实例占的内存最多，对应hash key大概有3w个filed。结合liveStreamStats集群上游服务和成龙大哥在线观众行为，我们怀疑是通过处理观众心跳消息记录观看时长的consumer有数据倾斜或者大key问题，导致liveStreamStats集群中两台实例内存使用率到达90%，通过前缀查看定位到具体代码：<br>通过代码和redis key确认，确实是这个逻辑有问题。</p>
+<h2 id="是否是存在大key问题"><a href="#是否是存在大key问题" class="headerlink" title="是否是存在大key问题"></a><strong>是否是存在大key问题</strong></h2><p>   可以通过代码看出来，我们记录直播间观众观看时长用的是redis的hash结构，我们在设计这块的时候考虑到，如果一个直播在线人数很大，用一个hash储存会有大key的问题，所以我们在代码中<strong>根据userId进行单一大hash结构</strong>的拆分。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://static.yximgs.com/udata/pkg/EE-KSTACK/e33d6283c2ffecebdfb71e7a94b215fd.png" alt="file"><br>wd_liveid:userid后三位  userid value   </p>
+<p>从代码上看，我们通过userId分出来了1000个hash，应该不会出现大key的问题，另外结合成龙大哥间內观看人数大概2600w人，1000个hash结构，每个hash有3w左右个filed，每个key数据还是比较均匀的。所以应该不是这个，<strong>pass</strong>。</p>
+<h2 id="是否是有数据倾斜问题"><a href="#是否是有数据倾斜问题" class="headerlink" title="是否是有数据倾斜问题"></a><strong>是否是有数据倾斜问题</strong></h2><p>   从上面代码来看，业务层通过userId做了hash的拆分，并且key的拼接方式是wd_{liveStreamId}:{0-999}的，按理说kcc-proxy会将每个key均匀的分到每台集群上，不太可能会有数据倾斜呀。我们同时去看了一下之前做的新uv pv服务使用的也是用的这个hash结构，同时就是用的一模一样的拆分逻辑，但是那个集群liveUvPvStatistic没有数据倾斜，但是liveUvPvStatistic集群的实例数是320个节点，liveStreamStats集群是174个节点，我们怀疑proxy的分片是否均匀可能与key的形式和实例个数有关。</p>
+<h1 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h1><p>   因为怀疑可能与proxy的分片算法有关，在kcc同学的帮助下，我们得知咱们快手用的redis集群proxy用的是Twitter的twemproxy代理系统，同时咱们快手这边用的key的hash算法是 <strong>fnv1a_64</strong>(twmproxy默认算法），数据分配方式（distribution）用的是根据<strong>key做hash值取模</strong>（modula）。同时kcc同学提供了一下fnv1a_64 java版的算法代码，我们基于这个代码写了个测试用例来模拟线上hash key的分片逻辑。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LiveFnv1a64Test</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">FNV_64_INIT</span> <span class="operator">=</span> <span class="number">0xcbf29ce484222325L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">FNV_64_PRIME</span> <span class="operator">=</span> <span class="number">0x100000001b3L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">long</span> <span class="title function_">hash</span><span class="params">(<span class="keyword">final</span> String k)</span> &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">rv</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> k.length();</span><br><span class="line">        rv = FNV_64_INIT;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> k.charAt(i);</span><br><span class="line">            rv ^=  c;</span><br><span class="line">            rv *= FNV_64_PRIME;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> rv &amp; <span class="number">0xffffffffL</span>; <span class="comment">/* Truncate to 32-bits */</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hashWatchCountKey</span><span class="params">(<span class="type">int</span> mcCount)</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">keyPrefix</span> <span class="operator">=</span> <span class="string">&quot;wd_11285866346:&quot;</span>;</span><br><span class="line">        Map&lt;Integer, Integer&gt; hashCount = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">999</span>; i++) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> keyPrefix + i;</span><br><span class="line">            <span class="type">int</span> <span class="variable">hashValue</span> <span class="operator">=</span> (<span class="type">int</span>) (hash(key) % mcCount);</span><br><span class="line">            hashCount.compute(hashValue, (k, v) -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (v == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">return</span> v + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;mcCount: &quot;</span>+mcCount + <span class="string">&quot; modClientCount: &quot;</span> + hashCount.keySet().size() + <span class="string">&quot; modClientmap:&quot;</span>+hashCount);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">hashKey</span><span class="params">()</span>&#123;</span><br><span class="line">        hashWatchCountKey(<span class="number">174</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>   其中for循环中的0-999模拟genShardedKey(keyPrefix, shardKey % shardSize) shardSize=1000，mcCount模拟redis集群有174台实例。输出的结果如下：<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://static.yximgs.com/udata/pkg/EE-KSTACK/9bedf91a2a6f28f3e3c2a4bcb8c970f0.png" alt="file"><br>其中modClientCount是指路由到的redis实例个数，modClientmap的key代表<strong>路由的对应的redis实例id</strong>，value表示<strong>对应实例分配redis key个数</strong>，我们通过结果发现1000个redis key并没有均匀的分配到174个实例上，只分配了6个，并且其中两台分配了400多个key，和线上的现象一样，有两个实例内存快爆了。</p>
+<h1 id="问题推理"><a href="#问题推理" class="headerlink" title="问题推理"></a>问题推理</h1><p>   现在可以确定就是数据倾斜问题，那么会是key的问题还是机器实例的问题？<br>为什么这样想问题呢，因为这个redis key分片到哪个实例，可以看做是一个函数<br>   输入：拼装的key &amp; redis实例数<br>   function：是fnv1a_64算法<br>   输出：对应key到实例映射。<br>所以我们先看看不同的输入会有什么结果</p>
+<h2 id="2-redis-key的拼装"><a href="#2-redis-key的拼装" class="headerlink" title="2.redis key的拼装"></a>2.redis key的拼装</h2><p>   我们可以发现这个key中的变量是0-999的slot，现在slot的位置在最后，如果在redis实例数不变，我们把slot值弄到中间或者最前面呢会是什么样？<br>我们分别将key的拼装方式变成：</p>
+<ul>
+<li>前缀拼接：{0-999}:wd_11285866346</li>
+<li>中缀拼接：wd_{0-999}:11285866346</li>
+<li>后缀拼接：wd_11285866346:{0-999}<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://static.yximgs.com/udata/pkg/EE-KSTACK/f87edc857a4125a492863228a85fd8f7.png" alt="file"></li>
+</ul>
+<p>what!!只有后缀拼接分片特别不均衡，为什么，一会咱们可以通过公式推理一下</p>
+<h1 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h1><p>首先这个问题可以抽象成一下步骤：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 首先一个hash函数对key数组做hash，得出一个int型的hash数组，&#123;h&#125; = hash(&#123;key&#125;)</span><br><span class="line">2. 然后这个hash数组&#123;h&#125;通过求模运算，将对应hash值映射到 m 个槽上，从而得到key需要映射到的对应实例，</span><br><span class="line">h(&#123;h&#125;) = &#123;h&#125; mod m</span><br></pre></td></tr></table></figure>
+<p>输入：{key}是key字符串数组，m是redis实例个数。<br>函数：hash就是fnv1a_64算法<br>输出：h({h}) 的结果就是映射map，其中{h}就是hash之后的int数组（这个很重要后面推理要用）。</p>
+<p>怎么能让key可以更均匀的散列到不同的槽位中，不发生数据倾斜呢？有三种定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 如果&#123;h&#125;数列间隔的分布越均匀，那么不管模数为几都会均匀分布，冲突的比较小。</span><br><span class="line">2. 如果&#123;h&#125;数列间隔和模数有公因子，则容易发生冲突，且公因子越多，冲突的可能性越多。公因子越少，冲突的可能性越少。</span><br><span class="line">3. 如果模数是素数，会比较均匀分布，冲突的比较小。（因为素数只有两个因数，一个1一个本身）</span><br></pre></td></tr></table></figure>
+<p><strong>第一个方法</strong>很好证明，如果hash数组里面的间隔越分散不管模几都均匀，因为分母的数字均匀呀，不管除几求余，后面的余数近似随机。</p>
+<p><strong>第二个方法</strong>可以简单解释一下，比如一个h({m}) = {m} % n，{m}是有序数组并且间隔一样记作g，间隔数g因子有a b c e，其中n的因子有 a b f g。那么:<br>   m1求模应该是 h(m1) = m1 % n<br>   m2求模应该是 h(m2) = m2 % n = (m1 + g) %n<br>   m3求模应该是 h(m3) = m3 % n = (m1 + 2g) %n<br>   m…求模应该是 h(m..) = m.. % n = (m1 + (..-1)g) %n<br>g和n有公因子，那么m1%n模出来的是一样的，k*g%n应该模出来的数是一样的，通过模运算的结合律，它们是线性结合，所以总起来模出来的数应该是一样的，从而数列间隔和模数有公因子，则容易发生冲突，且公因子越多。<br>这个推理不够完备，因为模数的结合律不是简单相加，但是是近似线性，具体可以问一下ChatGPT 4通过概率论和数学推理可以完整的推导出来的，举例论证可以看这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/afei__/article/details/83010897">文章</a></p>
+<p><strong>第三个方法</strong>在大学里学数据结构hash的时候老师讲过了，具体的数学推理可以看一下这篇<a target="_blank" rel="noopener" href="https://flat2010.github.io/2018/04/19/模运算中为何要用素数作为模">文章</a></p>
+<h2 id="1-redis将int-slot放到前缀或者中缀，散列值分布均匀"><a href="#1-redis将int-slot放到前缀或者中缀，散列值分布均匀" class="headerlink" title="1.redis将int slot放到前缀或者中缀，散列值分布均匀"></a>1.redis将int slot放到前缀或者中缀，散列值分布均匀</h2><p>为什么偏斜呢？</p>
+<p>可以看的出来fnv1a_64是种线性算法，它会将输入的数据逐个字符进行处理。<br>   当slot放到后缀的时候，前缀的部分”wd_11285866346:”对散列值的影响在<strong>每次key迭代</strong>中都是相同的，而只有在最后slot{i}变量相乘时散列值才会不一样，因此slot{i}并不能充分的影响到这个64位的散列值，这就导致了散列值的偏移。<br>   当slot放到前缀或者中间的时候，每次迭代的输入值都是不同的，所以槽变量slot{i}的改变几乎可以在整个64位散列值都有影响，从而使得散列值分布更均匀。</p>
+<h2 id="2-redis实例数如果是素数和2的n次方，散列值分布均匀"><a href="#2-redis实例数如果是素数和2的n次方，散列值分布均匀" class="headerlink" title="2.redis实例数如果是素数和2的n次方，散列值分布均匀"></a>2.redis实例数如果是素数和2的n次方，散列值分布均匀</h2><h3 id="在slot为后缀的时候，为什么模数是174偏移这么严重"><a href="#在slot为后缀的时候，为什么模数是174偏移这么严重" class="headerlink" title="在slot为后缀的时候，为什么模数是174偏移这么严重"></a>在slot为后缀的时候，为什么模数是174偏移这么严重</h3><p>先解释一下实例数是174的时候，为什么偏移这么严重。<br>根据定义二，hash数列间隔和模数有公因子，则容易发生冲突，且公因子越多，冲突的可能性越多。那我们现在先看一下hash数列间隔是怎么分布的。先写一个测试用例看一下hash数列间隔分布如下：</p>
+<p>其中gapList是hash数列间隔的List，gapGroupMap是hash数列间隔分布情况，咱们可以debug一下：<br>可以发现一共999个间隔，其中间隔为435的就占有825个。为什么间隔数有这么多435，算法中*435。<br>   435的因数为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">435</span> = <span class="number">3</span> *<span class="number">5</span> * <span class="number">29</span></span><br></pre></td></tr></table></figure>
+<p>   174的因数为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">174</span> = <span class="number">2</span> * <span class="number">3</span> * <span class="number">29</span></span><br></pre></td></tr></table></figure>
+<p>hash数列间隔435和模数174个公因子有两个，所以分片出来的key有数据倾斜。</p>
+<h3 id="在slot任意，为什么模数是素数比较均匀"><a href="#在slot任意，为什么模数是素数比较均匀" class="headerlink" title="在slot任意，为什么模数是素数比较均匀"></a>在slot任意，为什么模数是素数比较均匀</h3><p>这个前面解释过了，不在这里赘述了，具体的数学推理可以看一下这篇<a target="_blank" rel="noopener" href="https://blog.csdn.net/afei__/article/details/83010897">文章</a></p>
+<h3 id="在slot任意，为什么模数是2的指数幂比较均匀"><a href="#在slot任意，为什么模数是2的指数幂比较均匀" class="headerlink" title="在slot任意，为什么模数是2的指数幂比较均匀"></a>在slot任意，为什么模数是2的指数幂比较均匀</h3><p>在理解174为啥偏移严重的基础上，我们可以很简单的知道&amp;<br>    435的因数为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">435</span> = <span class="number">3</span> *<span class="number">5</span> * <span class="number">29</span></span><br></pre></td></tr></table></figure>
+<p>2的指数幂的因数都是2的倍数，所以他们没有公因数，从而比较均匀，没有什么偏移。</p>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>如果业务中用的key拼接策略是将slot拼接到后缀，并且redis实例数如果不是素数或者2的指数幂，redis集群就<strong>有可能</strong>出现严重的数据倾斜。所以解决方案如下：</p>
+<h2 id="1-将redis-key的拼接规则改成slot数字作为前缀或者中缀"><a href="#1-将redis-key的拼接规则改成slot数字作为前缀或者中缀" class="headerlink" title="1.将redis key的拼接规则改成slot数字作为前缀或者中缀"></a>1.将redis key的拼接规则改成slot数字作为前缀或者中缀</h2><h2 id="2-在申请redis集群时，可以将集群个数设置2的n次方"><a href="#2-在申请redis集群时，可以将集群个数设置2的n次方" class="headerlink" title="2.在申请redis集群时，可以将集群个数设置2的n次方"></a>2.在申请redis集群时，可以将集群个数设置2的n次方</h2><p>虽然实例数为素数，数据分布比较均匀，但是素数基本是奇数结尾，kcc在分配集群机器时不太好分配，所以最好不要用素数作为实例数。</p>
+<h2 id="3-proxy换成其他hash算法"><a href="#3-proxy换成其他hash算法" class="headerlink" title="3.proxy换成其他hash算法"></a>3.proxy换成其他hash算法</h2><ul>
+<li><p>murmur</p>
+</li>
+<li><p>fnv1_64hash</p>
+<p>当前线上用的是fnv1a_64，但是因为当前快手redis相关平台都是基于这个算法建设的，改动成本比较大。</p>
+<h1 id="最优的解决方案"><a href="#最优的解决方案" class="headerlink" title="最优的解决方案"></a>最优的解决方案</h1><p>   综合成本和安全性，将redis key的拼接规则改成slot数字作为前缀或者中缀，尽量让变量多参与计算是最优的。</p>
+</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog">xq182</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://xq182.github.io/blog/2023/08/25/28/">http://xq182.github.io/blog/2023/08/25/28/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://xq182.github.io/blog" target="_blank">blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/blog/tags/redis%E9%9B%86%E7%BE%A4key/">redis集群key</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/blog/2023/08/26/29/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">oom线上问题排查</div></div></a></div><div class="next-post pull-right"><a href="/blog/2023/08/14/9/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/blog/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">spring容器的创建过程</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/blog/2023/08/26/29/" title="oom线上问题排查"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-08-26</div><div class="title">oom线上问题排查</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://xq182.oss-cn-beijing.aliyuncs.com/%E5%A4%B4%E5%83%8F.png" onerror="this.onerror=null;this.src='/blog/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">xq182</div><div class="author-info__description">xq zone</div></div><div class="card-info-data site-data is-center"><a href="/blog/archives/"><div class="headline">文章</div><div class="length-num">28</div></a><a href="/blog/tags/"><div class="headline">标签</div><div class="length-num">22</div></a><a href="/blog/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xq182"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/xq182" target="_blank" title="Github"><i class="icon-github"></i></a><a class="social-icon" href="tencent://Message/?Uin=2895837015&amp;amp;websiteName=local.edu.com:8888=&amp;amp;Menu=yes" target="_blank" title="QQ"><i class="icon-QQ"></i></a><a class="social-icon" href="http://img.bestxq.live//7ebbb43f1393ccddc981b2baea3dde4.jpg" target="_blank" title="WX"><i class="icon-weixin"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is xq zone</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%91%E7%8E%B0%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">发现问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%AD%A2%E6%8D%9F"><span class="toc-number">2.</span> <span class="toc-text">问题止损</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%88%9D%E6%AD%A5%E5%AE%9A%E4%BD%8D"><span class="toc-number">3.</span> <span class="toc-text">问题初步定位</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%AF%E5%90%A6%E6%98%AF%E5%AD%98%E5%9C%A8%E5%A4%A7key%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">是否是存在大key问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%AF%E5%90%A6%E6%98%AF%E6%9C%89%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E9%97%AE%E9%A2%98"><span class="toc-number">3.2.</span> <span class="toc-text">是否是有数据倾斜问题</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">问题复现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8E%A8%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">问题推理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-redis-key%E7%9A%84%E6%8B%BC%E8%A3%85"><span class="toc-number">5.1.</span> <span class="toc-text">2.redis key的拼装</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0"><span class="toc-number">6.</span> <span class="toc-text">问题原因</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-redis%E5%B0%86int-slot%E6%94%BE%E5%88%B0%E5%89%8D%E7%BC%80%E6%88%96%E8%80%85%E4%B8%AD%E7%BC%80%EF%BC%8C%E6%95%A3%E5%88%97%E5%80%BC%E5%88%86%E5%B8%83%E5%9D%87%E5%8C%80"><span class="toc-number">6.1.</span> <span class="toc-text">1.redis将int slot放到前缀或者中缀，散列值分布均匀</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-redis%E5%AE%9E%E4%BE%8B%E6%95%B0%E5%A6%82%E6%9E%9C%E6%98%AF%E7%B4%A0%E6%95%B0%E5%92%8C2%E7%9A%84n%E6%AC%A1%E6%96%B9%EF%BC%8C%E6%95%A3%E5%88%97%E5%80%BC%E5%88%86%E5%B8%83%E5%9D%87%E5%8C%80"><span class="toc-number">6.2.</span> <span class="toc-text">2.redis实例数如果是素数和2的n次方，散列值分布均匀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8slot%E4%B8%BA%E5%90%8E%E7%BC%80%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%A8%A1%E6%95%B0%E6%98%AF174%E5%81%8F%E7%A7%BB%E8%BF%99%E4%B9%88%E4%B8%A5%E9%87%8D"><span class="toc-number">6.2.1.</span> <span class="toc-text">在slot为后缀的时候，为什么模数是174偏移这么严重</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8slot%E4%BB%BB%E6%84%8F%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%A8%A1%E6%95%B0%E6%98%AF%E7%B4%A0%E6%95%B0%E6%AF%94%E8%BE%83%E5%9D%87%E5%8C%80"><span class="toc-number">6.2.2.</span> <span class="toc-text">在slot任意，为什么模数是素数比较均匀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8slot%E4%BB%BB%E6%84%8F%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E6%A8%A1%E6%95%B0%E6%98%AF2%E7%9A%84%E6%8C%87%E6%95%B0%E5%B9%82%E6%AF%94%E8%BE%83%E5%9D%87%E5%8C%80"><span class="toc-number">6.2.3.</span> <span class="toc-text">在slot任意，为什么模数是2的指数幂比较均匀</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">7.</span> <span class="toc-text">解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B0%86redis-key%E7%9A%84%E6%8B%BC%E6%8E%A5%E8%A7%84%E5%88%99%E6%94%B9%E6%88%90slot%E6%95%B0%E5%AD%97%E4%BD%9C%E4%B8%BA%E5%89%8D%E7%BC%80%E6%88%96%E8%80%85%E4%B8%AD%E7%BC%80"><span class="toc-number">7.1.</span> <span class="toc-text">1.将redis key的拼接规则改成slot数字作为前缀或者中缀</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%9C%A8%E7%94%B3%E8%AF%B7redis%E9%9B%86%E7%BE%A4%E6%97%B6%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%B0%86%E9%9B%86%E7%BE%A4%E4%B8%AA%E6%95%B0%E8%AE%BE%E7%BD%AE2%E7%9A%84n%E6%AC%A1%E6%96%B9"><span class="toc-number">7.2.</span> <span class="toc-text">2.在申请redis集群时，可以将集群个数设置2的n次方</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-proxy%E6%8D%A2%E6%88%90%E5%85%B6%E4%BB%96hash%E7%AE%97%E6%B3%95"><span class="toc-number">7.3.</span> <span class="toc-text">3.proxy换成其他hash算法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%80%E4%BC%98%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">8.</span> <span class="toc-text">最优的解决方案</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/09/06/17%20/" title="无题"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="无题"/></a><div class="content"><a class="title" href="/blog/2023/09/06/17%20/" title="无题">无题</a><time datetime="2023-09-06T05:06:12.038Z" title="发表于 2023-09-06 13:06:12">2023-09-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/26/29/" title="oom线上问题排查"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="oom线上问题排查"/></a><div class="content"><a class="title" href="/blog/2023/08/26/29/" title="oom线上问题排查">oom线上问题排查</a><time datetime="2023-08-26T12:05:03.428Z" title="发表于 2023-08-26 20:05:03">2023-08-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/25/28/" title="redis集群key"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="redis集群key"/></a><div class="content"><a class="title" href="/blog/2023/08/25/28/" title="redis集群key">redis集群key</a><time datetime="2023-08-24T16:21:03.076Z" title="发表于 2023-08-25 00:21:03">2023-08-25</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/9/" title="spring容器的创建过程"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="spring容器的创建过程"/></a><div class="content"><a class="title" href="/blog/2023/08/14/9/" title="spring容器的创建过程">spring容器的创建过程</a><time datetime="2023-08-14T08:17:05.467Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/blog/2023/08/14/26/" title="快手"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="this.onerror=null;this.src='/blog/img/404.jpg'" alt="快手"/></a><div class="content"><a class="title" href="/blog/2023/08/14/26/" title="快手">快手</a><time datetime="2023-08-14T08:17:05.465Z" title="发表于 2023-08-14 16:17:05">2023-08-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By xq182</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/blog/js/utils.js"></script><script src="/blog/js/main.js"></script><script src="/blog/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/blog/js/search/local-search.js"></script><div class="js-pjax"></div><script defer src="/js/light.js"></script><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script  defer src="/js/visit.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --> <script data-pjax>if(document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="width:100%;height: auto"><div id="catalog_magnet"><a class="magnet_link_more"  href="http://xq182.github.io/blog/categories" style="flex:1;text-align: center;margin-bottom: 10px;">查看更多...</a></div></div>';
+    console.log('已挂载magnet')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script><style>#catalog_magnet{flex-wrap: wrap;display: flex;width:100%;justify-content:space-between;padding: 10px 10px 0 10px;align-content: flex-start;}.magnet_item{flex-basis: calc(50% - 5px);background: #f2f2f2;margin-bottom: 10px;border-radius: 8px;transition: all 0.2s ease-in-out;}.magnet_item:hover{background: #b30070}.magnet_link_more{color:#555}.magnet_link{color:black}.magnet_link:hover{color:white}@media screen and (max-width: 600px) {.magnet_item {flex-basis: 100%;}}.magnet_link_context{display:flex;padding: 10px;font-size:16px;transition: all 0.2s ease-in-out;}.magnet_link_context:hover{padding: 10px 20px;}</style>
+    <style></style><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = '/';
+  var qweather_key = 'b16a1fa0e63c46a4b8f28abfb06ae3fe';
+  var gaud_map_key = 'e2b04289e870b005374ee030148d64fd&s=rsv3';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '113.34532,23.15624';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><script async src="//at.alicdn.com/t/font_2032782_8d5kxvn09md.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/blog/js/runtime.min.js"></script><!-- hexo injector body_end end --><script src="/blog/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/blog/live2dw/assets/koharu.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body></html>
